@@ -1,0 +1,56 @@
+// children
+// all th 
+[
+  {
+    "name": "Columns",
+    "type": "Region",
+    "children": [
+      {
+        "type": "TextInput",
+        "config": {
+          "label": "Name",
+          "testId": "f5119e62-f607-4a86-93e8-9dc38b99b470"
+        }
+      },
+      {
+        "type": "TextInput",
+        "config": {
+          "label": "Age",
+          "testId": "c969e6c2-5ea5-4c11-ad12-3813ae891bd5"
+        }
+      },
+      {
+        "type": "TextInput",
+        "config": {
+          "label": "Claim End Date",
+          "testId": "dd329cd3-c847-4251-adbc-53e2e4b3784f"
+        }
+      }
+    ]
+  }
+]
+
+
+// referenceList
+[
+    {
+        "classID": "HMRC-ChB-Data-Child",
+        "FullName": "Bill Marshal Linn",
+        "Age": "17",
+        "ClaimEndDate": "first Monday of September 2024",
+        "Title": "",
+        "pyLastName": "",
+        "pyFirstName": "",
+        "MiddleName": ""
+    },
+    {
+        "classID": "HMRC-ChB-Data-Child",
+        "FullName": "Billy Marshal Linn",
+        "Age": "16",
+        "ClaimEndDate": "first Monday of September 2024",
+        "Title": "",
+        "pyLastName": "",
+        "pyFirstName": "",
+        "MiddleName": ""
+    }
+]
