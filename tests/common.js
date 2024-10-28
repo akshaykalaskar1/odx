@@ -42,7 +42,7 @@ export default function HmrcOdxGoBackGoBack(props: HmrcOdxGoBackGoBackProps) {
     if (String(value) === 'true') {
       // React control
       setChecked(false);
-      // setOverrideControl(true);
+      setOverrideControl(true);
       sessionStorage.setItem('overrideControl', 'true');
       handleEvent(actionsApi, 'changeNblur', propName, 'false');
 
@@ -53,7 +53,7 @@ export default function HmrcOdxGoBackGoBack(props: HmrcOdxGoBackGoBackProps) {
         const backLink = document.createElement('a');
         backLink.href = '#';
         backLink.className = 'govuk-back-link';
-        backLink.innerText = t('BACK_R');
+        backLink.innerText = t('BACK');
         backLink.id = 'dynamic-back-link';
 
         backLink.addEventListener('click', (event: MouseEvent) => {
@@ -76,7 +76,7 @@ export default function HmrcOdxGoBackGoBack(props: HmrcOdxGoBackGoBackProps) {
       // Pega control
       if (sessionStorage.getItem('overrideControl') === 'true') return;
 
-      // setOverrideControl(false);
+      setOverrideControl(false);
       sessionStorage.setItem('overrideControl', 'false');
 
       if (assignmentDiv && mainContent) {
@@ -116,7 +116,7 @@ export default function HmrcOdxGoBackGoBack(props: HmrcOdxGoBackGoBackProps) {
   }, [thePConn]);
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // if (overrideControl) return;
+    if (overrideControl) return;
     const isChecked = event.target.checked;
     setChecked(isChecked);
     handleEvent(actionsApi, 'changeNblur', propName, isChecked.toString());
@@ -148,9 +148,7 @@ export default function HmrcOdxGoBackGoBack(props: HmrcOdxGoBackGoBackProps) {
   return (
     <div className='govuk-visually-hidden' aria-hidden='true' tabIndex={-1}>
       <FormGroup tabIndex={-1} aria-hidden='true'>
-        {
-        // !overrideControl && 
-        theCheckbox}
+        {!overrideControl && theCheckbox}
       </FormGroup>
     </div>
   );
