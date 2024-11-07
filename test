@@ -2,18 +2,26 @@ import React, { useEffect, useCallback, useReducer } from 'react';
 import Modal from '../../BaseComponents/Modal/Modal';
 import Button from '../../BaseComponents/Button/Button';
 import { useTranslation } from 'react-i18next';
+import PropTypes from 'prop-types';
 
-interface TimeoutPopupPropTypes {
-  show: boolean;
-  millisecondsTillSignout?: number;
-  staySignedinHandler: () => void;
-  signoutHandler: () => void;
-  staySignedInButtonText: string;
-  signoutButtonText: string;
-  children?: any;
+interface TimeoutState {
+  countdownStart: boolean;
+  timeRemaining: number;
+  screenReaderCountdown: string;
 }
 
-export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
+type TimeoutAction =
+  | { type: 'START_COUNTDOWN'; payload: boolean }
+  | { type: 'UPDATE_TIME_REMAINING'; payload: number }
+  | { type: 'UPDATE_SCREEN_READER_COUNTDOWN'; payload: string };
+
+const COUNTDOWN_START_OFFSET = 60000;
+const INITIAL_TIME_REMAINING = 60;
+const UPDATE_INTERVAL = 1000;
+const SIGNOUT_DELAY = 1000;
+const SCREEN_READER_UPDATE_INTERVAL = 20;
+
+export default function TimeoutPopup(props) {
   const {
     show,
     millisecondsTillSignout,
@@ -33,13 +41,13 @@ export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
 
   const { t } = useTranslation();
 
-  const initialTimeoutState = {
+  const initialTimeoutState: TimeoutState = {
     countdownStart: false,
-    timeRemaining: 60,
+    timeRemaining: INITIAL_TIME_REMAINING,
     screenReaderCountdown: ''
   };
 
-  const reducer = (state, action) => {
+  const reducer = (state: TimeoutState, action: TimeoutAction) => {
     switch (action.type) {
       case 'START_COUNTDOWN':
         return { ...state, countdownStart: action.payload };
@@ -57,12 +65,12 @@ export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
   useEffect(() => {
     if (!show) {
       // Reset countdown and related states if show is false
-      dispatch({ type: 'UPDATE_TIME_REMAINING', payload: 60 });
+      dispatch({ type: 'UPDATE_TIME_REMAINING', payload: INITIAL_TIME_REMAINING });
       dispatch({ type: 'UPDATE_SCREEN_READER_COUNTDOWN', payload: '' });
       dispatch({ type: 'START_COUNTDOWN', payload: false });
     } else {
       // Start the countdown only if show is true
-      const milisecondsTilCountdown = millisecondsTillSignout - 60000;
+      const milisecondsTilCountdown = millisecondsTillSignout - COUNTDOWN_START_OFFSET;
       const countdownTimeout = setTimeout(() => {
         dispatch({ type: 'START_COUNTDOWN', payload: true });
       }, milisecondsTilCountdown);
@@ -75,7 +83,7 @@ export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
 
   useEffect(() => {
     if (timeoutState.countdownStart) {
-      if (timeoutState.timeRemaining === 60) {
+      if (timeoutState.timeRemaining === INITIAL_TIME_REMAINING) {
         dispatch({
           type: 'UPDATE_SCREEN_READER_COUNTDOWN',
           payload: `${t('FOR_YOUR_SECURITY_WE_WILL_SIGN_YOU_OUT')} ${t('1_MINUTE')}`
@@ -86,14 +94,17 @@ export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
 
       const timeRemainingInterval = setInterval(() => {
         dispatch({ type: 'UPDATE_TIME_REMAINING', payload: timeoutState.timeRemaining - 1 });
-      }, 1000);
+      }, UPDATE_INTERVAL);
 
       return () => clearInterval(timeRemainingInterval);
     }
   }, [timeoutState.countdownStart, timeoutState.timeRemaining]);
 
   useEffect(() => {
-    if (timeoutState.timeRemaining < 60 && timeoutState.timeRemaining % 20 === 0) {
+    if (
+      timeoutState.timeRemaining < INITIAL_TIME_REMAINING &&
+      timeoutState.timeRemaining % SCREEN_READER_UPDATE_INTERVAL === 0
+    ) {
       dispatch({
         type: 'UPDATE_SCREEN_READER_COUNTDOWN',
         payload: `${t('FOR_YOUR_SECURITY_WE_WILL_SIGN_YOU_OUT')} ${timeoutState.timeRemaining} ${t(
@@ -107,7 +118,7 @@ export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
     if (timeoutState.timeRemaining === 0) {
       const signoutHandlerTimeout = setTimeout(() => {
         signoutHandler();
-      }, 1000);
+      }, SIGNOUT_DELAY);
 
       return () => {
         clearTimeout(signoutHandlerTimeout);
@@ -125,6 +136,7 @@ export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
       window.removeEventListener('keydown', staySignedInCallback);
     };
   }, [show]);
+
   const timeoutText = () => {
     const { countdownStart, timeRemaining } = timeoutState;
 
@@ -189,3 +201,12 @@ export default function TimeoutPopup(props: TimeoutPopupPropTypes) {
   );
 }
 
+TimeoutPopup.propTypes = {
+  show: PropTypes.bool,
+  millisecondsTillSignout: PropTypes.number,
+  staySignedinHandler: PropTypes.func,
+  signoutHandler: PropTypes.func,
+  staySignedInButtonText: PropTypes.string,
+  signoutButtonText: PropTypes.string,
+  children: PropTypes.any
+};
