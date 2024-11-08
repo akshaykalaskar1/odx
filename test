@@ -199,14 +199,14 @@ export default function TimeoutPopup(props) {
       </div>
     </Modal>
   );
-}
+};
 
 TimeoutPopup.propTypes = {
-  show: PropTypes.bool,
+  show: PropTypes.bool.isRequired,
   millisecondsTillSignout: PropTypes.number,
-  staySignedinHandler: PropTypes.func,
-  signoutHandler: PropTypes.func,
+  staySignedinHandler: PropTypes.func.isRequired,
+  signoutHandler: PropTypes.func.isRequired,
   staySignedInButtonText: PropTypes.string,
   signoutButtonText: PropTypes.string,
-  children: PropTypes.any
+  children: PropTypes.node
 };
