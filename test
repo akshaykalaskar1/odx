@@ -1,48 +1,21 @@
-import React, { FC, useRef, useEffect, MouseEvent, ElementRef } from 'react'
-import { ErrorSummaryProps } from './ErrorSummary.types'
+defaultOnlyFieldDetails.overrideLabel = DFContext.OverrideLabelValue;
+      const pageHasNonEditableField = PCore.getStoreValue('pageHasNonEdtiableField', '', 'app');
+      const context = PCore.getContainerUtils().getActiveContainerItemName(
+        `${PCore.getConstants().APP.APP}/primary`
+      );
+      let editableFieldsCount = PCore.getFormUtils().getEditableFields(
+        PCore.getContainerUtils().getActiveContainerItemContext(`${context}/workarea`)
+      ).length;
 
-const ErrorSummary: FC<ErrorSummaryProps> = (props: ErrorSummaryProps) => {
-  const { heading = 'There is a problem', errorDetails, autoMoveFocus = true } = props
+      if (
+        editableFieldsCount === 1 &&
+        PCore.getFormUtils().getEditableFields(
+          PCore.getContainerUtils().getActiveContainerItemContext(`${context}/workarea`)
+        )[0].label === 'GoBack'
+      ) {
+        editableFieldsCount = 0;
+      }
 
-  const errorSummaryRef = useRef<ElementRef<'div'>>(null)
-
-  // One render, move ('take') focus to Error summary component as per GDS suggestions
-  useEffect(() => {
-    if (errorDetails !== null && errorDetails.length > 0 && errorSummaryRef.current !== null && autoMoveFocus) {
-      errorSummaryRef.current.focus()
-    }
-  }, [])
-
-  // Prevent default behaviour of error message link click, and instead move focus to target field.
-  function handleClick (e: MouseEvent<HTMLAnchorElement>): void {
-    e.preventDefault()
-    const ref = e.currentTarget.href.includes('#') && e.currentTarget.href.split('#').pop()
-    const target: HTMLElement | null = document.getElementById(ref as string)
-
-    // / Move focus to the element, if we have found a valid target
-    if (target !== null) {
-      target.focus()
-    }
-  };
-
-  return (
-    <div ref={errorSummaryRef} className='govuk-error-summary' tabIndex={-1} data-module='govuk-error-summary'>
-      <div role='alert'>
-        <h2 className='govuk-error-summary__title'>{heading}</h2>
-        <div className='govuk-error-summary__body'>
-          <ul className='govuk-list govuk-error-summary__list'>
-            {errorDetails.length > 0 && errorDetails.map((error) => {
-              return (
-                <li key={error.targetFieldId}>
-                  <a href={`#${error.targetFieldId}`} onClick={handleClick}>{error.message}</a>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export { ErrorSummary }
+      if (editableFieldsCount === 1 && !pageHasNonEditableField) {
+        defaultOnlyFieldDetails.isOnlyField = true;
+      } 
