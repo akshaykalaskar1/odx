@@ -1,0 +1,87 @@
+{
+  "penaltyData": [
+    {
+      "duration": "6 April 2023 to 5 April 2024",
+      "penalties": [
+        {
+          "type": "Late filing penalties",
+          "rows": [
+            {
+              "PenaltyNumber": 1,
+              "AdditionalInfo": "Issued when you missed....",
+              "Amount": 100
+            },
+            {
+              "PenaltyNumber": 2,
+              "AdditionalInfo": "3 months late: Penalty increase....",
+              "Amount": 900
+            },
+            {
+              "PenaltyNumber": 3,
+              "AdditionalInfo": "6 months late: Penalty increase....",
+              "Amount": 300
+            },
+            {
+              "PenaltyNumber": 4,
+              "AdditionalInfo": "12 months late: Penalty increase....",
+              "Amount": 300
+            }
+          ],
+          "totalAmount": 1600
+        },
+        {
+          "type": "Late payment penalties",
+          "rows": [
+            {
+              "PenaltyNumber": 1,
+              "AdditionalInfo": "Issued 30 days after the pa...",
+              "Amount": 250
+            },
+            {
+              "PenaltyNumber": 2,
+              "AdditionalInfo": "6 months late...",
+              "Amount": 250
+            },
+            {
+              "PenaltyNumber": 3,
+              "AdditionalInfo": "12 months late...",
+              "Amount": 250
+            }
+          ],
+          "totalAmount": 750
+        }
+      ]
+    },
+    {
+      "duration": "6 April 2022 to 5 April 2023",
+      "penalties": [
+        {
+          "type": "Late filing penalties",
+          "rows": [
+            {
+              "PenaltyNumber": 1,
+              "AdditionalInfo": "Issued when you missed....",
+              "Amount": 100
+            },
+            {
+              "PenaltyNumber": 2,
+              "AdditionalInfo": "3 months late: Penalty increase....",
+              "Amount": 900
+            },
+            {
+              "PenaltyNumber": 3,
+              "AdditionalInfo": "6 months late: Penalty increase....",
+              "Amount": 300
+            },
+            {
+              "PenaltyNumber": 4,
+              "AdditionalInfo": "12 months late: Penalty increase....",
+              "Amount": 300
+            }
+          ],
+          "totalAmount": 1600
+        }
+      ]
+    }
+  ]
+}
