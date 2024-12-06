@@ -1,95 +1,87 @@
-<h2 class="govuk-heading-m">
-        Penalties for the 6 April 2023 to 5 April 2024 tax year
-      </h2>
-      <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-          <h2 class="govuk-summary-card__title govuk-!-width-one-half">
-            Late filing penalties
-          </h2>
-          <span class="govuk-body govuk-!-text-align-right govuk-!-width-one-quarter"><strong>£1600</strong></span>
-        </div>
-        <div class="govuk-summary-card__content">
-          
-          <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                <strong>1st penalty</strong>
-                <p class="govuk-!-margin-bottom-0">Issued when you missed the deadline for submitting your tax return.</p>
-              </dt>
-              <dd class="govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter">
-                £100
-              </dd>
-              
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                <strong>2nd penalty</strong>
-                <p class="govuk-!-margin-bottom-0">3 months late: Penalty increases £10 every day up to a maximum of £900.</p>
-              </dt>
-              <dd class="govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter" "="">
-                £900
-              </dd>
-              
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                <strong>3rd penalty</strong>
-                <p class="govuk-!-margin-bottom-0">6 months late: 5% of tax owed or £300, whichever is higher.</p>
-              </dt>
-              <dd class="govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter" "="">
-                £300
-              </dd>
-
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                <strong>4th penalty</strong>
-                <p class="govuk-!-margin-bottom-0">12 months late: another 5% of tax owed or £300, whichever is higher.</p>
-              </dt>
-              <dd class="govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter" "="">
-                £300
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-      <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-          <h2 class="govuk-summary-card__title govuk-!-width-one-half">
-            Late payment penalties
-          </h2>
-          <span class="govuk-body govuk-!-text-align-right govuk-!-width-one-quarter"><strong>£750</strong></span>
-        </div>
-        <div class="govuk-summary-card__content">
-          
-          <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                <strong>1st penalty</strong>
-                <p class="govuk-!-margin-bottom-0">Issued 30 days after the payment deadline: 5% of tax owed.</p>
-              </dt>
-              <dd class="govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter" "="">
-                £250
-              </dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                <strong>2nd penalty</strong>
-                <p class="govuk-!-margin-bottom-0">6 months late: another 5% of tax owed.</p>
-              </dt>
-              <dd class="govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter" "="">
-                £250
-              </dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key govuk-!-width-one-half">
-                <strong>3rd penalty</strong>
-                <p class="govuk-!-margin-bottom-0">12 months late: another 5% of tax owed.</p>
-              </dt>
-              <dd class="govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter" "="">
-                £250
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
+{
+  "penaltyData": [
+    {
+      "duration": "6 April 2023 to 5 April 2024",
+      "penalties": [
+        {
+          "type": "Late filing penalties",
+          "rows": [
+            {
+              "penaltyNumber": 1,
+              "additionalInfo": "Issued when you missed the deadline for submitting your tax return.",
+              "amount": 100
+            },
+            {
+              "penaltyNumber": 2,
+              "additionalInfo": "3 months late: Penalty increases £10 every day up to a maximum of £900.",
+              "amount": 900
+            },
+            {
+              "penaltyNumber": 3,
+              "additionalInfo": "6 months late: 5% of tax owed or £300, whichever is higher.",
+              "amount": 300
+            },
+            {
+              "penaltyNumber": 4,
+              "additionalInfo": "12 months late: another 5% of tax owed or £300, whichever is higher.",
+              "amount": 300
+            }
+          ],
+          "totalAmount": 1600
+        },
+        {
+          "type": "Late payment penalties",
+          "rows": [
+            {
+              "penaltyNumber": 1,
+              "additionalInfo": "Issued 30 days after the payment deadline: 5% of tax owed.",
+              "amount": 250
+            },
+            {
+              "penaltyNumber": 2,
+              "additionalInfo": "6 months late: another 5% of tax owed.",
+              "amount": 250
+            },
+            {
+              "penaltyNumber": 3,
+              "additionalInfo": "12 months late: another 5% of tax owed.",
+              "amount": 250
+            }
+          ],
+          "totalAmount": 750
+        }
+      ]
+    },
+    {
+      "duration": "6 April 2022 to 5 April 2023",
+      "penalties": [
+        {
+          "type": "Late filing penalties",
+          "rows": [
+            {
+              "penaltyNumber": 1,
+              "additionalInfo": "Issued when you missed the deadline for submitting your tax return.",
+              "amount": 100
+            },
+            {
+              "penaltyNumber": 2,
+              "additionalInfo": "3 months late: Penalty increases £10 every day up to a maximum of £900.",
+              "amount": 900
+            },
+            {
+              "penaltyNumber": 3,
+              "additionalInfo": "6 months late: 5% of tax owed or £300, whichever is higher.",
+              "amount": 300
+            },
+            {
+              "penaltyNumber": 4,
+              "additionalInfo": "12 months late: another 5% of tax owed or £300, whichever is higher.",
+              "amount": 300
+            }
+          ],
+          "totalAmount": 1600
+        }
+      ]
+    }
+  ]
+}
