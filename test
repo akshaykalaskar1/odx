@@ -1,87 +1,95 @@
-{
-  "penaltyData": [
-    {
-      "duration": "6 April 2023 to 5 April 2024",
-      "penalties": [
-        {
-          "type": "Late filing penalties",
-          "rows": [
-            {
-              "penaltyNumber": 1,
-              "additionalInfo": "Issued when you missed the deadline for submitting your tax return.",
-              "amount": 100
-            },
-            {
-              "penaltyNumber": 2,
-              "additionalInfo": "3 months late: Penalty increases £10 every day up to a maximum of £900.",
-              "amount": 900
-            },
-            {
-              "penaltyNumber": 3,
-              "additionalInfo": "6 months late: 5% of tax owed or £300, whichever is higher.",
-              "amount": 300
-            },
-            {
-              "penaltyNumber": 4,
-              "additionalInfo": "12 months late: another 5% of tax owed or £300, whichever is higher.",
-              "amount": 300
-            }
-          ],
-          "totalAmount": 1600
-        },
-        {
-          "type": "Late payment penalties",
-          "rows": [
-            {
-              "penaltyNumber": 1,
-              "additionalInfo": "Issued 30 days after the payment deadline: 5% of tax owed.",
-              "amount": 250
-            },
-            {
-              "penaltyNumber": 2,
-              "additionalInfo": "6 months late: another 5% of tax owed.",
-              "amount": 250
-            },
-            {
-              "penaltyNumber": 3,
-              "additionalInfo": "12 months late: another 5% of tax owed.",
-              "amount": 250
-            }
-          ],
-          "totalAmount": 750
-        }
-      ]
-    },
-    {
-      "duration": "6 April 2022 to 5 April 2023",
-      "penalties": [
-        {
-          "type": "Late filing penalties",
-          "rows": [
-            {
-              "penaltyNumber": 1,
-              "additionalInfo": "Issued when you missed the deadline for submitting your tax return.",
-              "amount": 100
-            },
-            {
-              "penaltyNumber": 2,
-              "additionalInfo": "3 months late: Penalty increases £10 every day up to a maximum of £900.",
-              "amount": 900
-            },
-            {
-              "penaltyNumber": 3,
-              "additionalInfo": "6 months late: 5% of tax owed or £300, whichever is higher.",
-              "amount": 300
-            },
-            {
-              "penaltyNumber": 4,
-              "additionalInfo": "12 months late: another 5% of tax owed or £300, whichever is higher.",
-              "amount": 300
-            }
-          ],
-          "totalAmount": 1600
-        }
-      ]
-    }
-  ]
+import React from 'react';
+import { formatOrdinal } from '../../../components/helpers/utils';
+
+interface PenaltyRowProps {
+  penaltyNumber: number;
+  additionalInfo: string;
+  amount: number;
+}
+
+interface PenaltySection {
+  penaltyType: string;
+  results: Array<PenaltyRowProps>;
+  totalAmount: number;
+}
+
+interface PenaltyDuration {
+  duration: string;
+  penalties: Array<PenaltySection>;
+}
+
+interface PenaltyData {
+  penaltyData: Array<PenaltyDuration>;
+}
+
+interface PenaltyDataProps {
+  data: PenaltyData;
+}
+
+const DurationHeading: React.FC<{ duration: string }> = ({ duration }) => (
+  <h2 className='govuk-heading-m'>Penalties for the {duration} tax year</h2>
+);
+
+const PenaltyRow: React.FC<PenaltyRowProps> = ({ penaltyNumber, additionalInfo, amount }) => (
+  <div className='govuk-summary-list__row'>
+    <dt className='govuk-summary-list__key govuk-!-width-one-half'>
+      <strong>{formatOrdinal(penaltyNumber)} penalty</strong>
+      <p className='govuk-!-margin-bottom-0'>{additionalInfo}</p>
+    </dt>
+    <dd className='govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter'>
+      £{amount}
+    </dd>
+  </div>
+);
+
+const PenaltyCard: React.FC<PenaltySection> = ({ penaltyType, results, totalAmount }) => {
+  const hasMultiplePenalties = results.length > 1;
+
+  return (
+    <div className='govuk-summary-card'>
+      <div className='govuk-summary-card__title-wrapper'>
+        <h2 className='govuk-summary-card__title govuk-!-width-one-half'>{penaltyType}</h2>
+        {hasMultiplePenalties && (
+          <span className='govuk-body govuk-!-text-align-right govuk-!-width-one-quarter'>
+            <strong>£{totalAmount}</strong>
+          </span>
+        )}
+      </div>
+      <div className='govuk-summary-card__content'>
+        <dl className='govuk-summary-list'>
+          {results.map(row => (
+            <PenaltyRow key={row.penaltyNumber} {...row} />
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
+};
+
+const PenaltyDatails: React.FC<PenaltyDataProps> = ({ data }) => (
+  <div>
+    {data.penaltyData.map(({ duration, penalties }) => (
+      <div key={duration}>
+        <DurationHeading duration={duration} />
+        {penalties.map(penaltySection => (
+          <PenaltyCard key={penaltySection.penaltyType} {...penaltySection} />
+        ))}
+      </div>
+    ))}
+  </div>
+);
+
+export default PenaltyDatails;
+
+
+// utils 
+export const formatOrdinal = (num: number): string => {
+  if (num <= 0) return `${num}`;
+  const suffixes = ["th", "st", "nd", "rd"];
+  const value = num % 100;
+  const suffix =
+    value > 10 && value < 20
+      ? "th"
+      : suffixes[(value % 10) < suffixes.length ? value % 10 : 0];
+  return `${num}${suffix}`;
 }
