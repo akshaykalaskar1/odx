@@ -1,3 +1,252 @@
+
+import React, { useEffect, useState } from 'react';
+import AskHMRC from '../../../components/AppComponents/AskHMRC';
+import Button from '../../../components/BaseComponents/Button/Button';
+import { useTranslation } from 'react-i18next';
+import useHMRCExternalLinks from '../../../components/helpers/hooks/HMRCExternalLinks';
+import PenaltyDatails from './PenaltyDatails';
+import setPageTitle from '../../../components/helpers/setPageTitleHelpers';
+import { getServiceShutteredStatus } from '../../../components/helpers/utils';
+
+export default function AppealsAndPenaltiesLanding(props) {
+  const {
+    showPortalBanner,
+    isLogout,
+    pConn,
+    penaltyDataEndpoint,
+    creatCaseEndpoint,
+    // buttonContent,
+    // title,
+    // bannerContent,
+    handleCaseStart,
+    caseListApiParams,
+    setShutterServicePage
+  } = props;
+  const [dashboardData, setDashboardData] = useState([]);
+  // const [loadingInProgressCaseDetail, setLoadingInProgressCaseDetail] = useState(true);
+  const { t } = useTranslation();
+  const { hmrcURL } = useHMRCExternalLinks();
+
+  function createCase() {
+    PCore.getMashupApi().createCase(creatCaseEndpoint, PCore.getConstants().APP.APP);
+    handleCaseStart();
+  }
+
+  // Calls data page to fetch in progress caseDetail,
+  // This then sets inprogress caseDetail state value to the caseDetail details.
+  // This funtion also sets 'isloading' value to true before making d_page calls
+  function fetchInProgressCaseDetailData() {
+    // setLoadingInProgressCaseDetail(true);
+    const context = pConn.getContextName();
+    try {
+      PCore.getDataPageUtils()
+        // @ts-ignore
+        .getDataAsync(penaltyDataEndpoint, context, { ...caseListApiParams })
+        // @ts-ignore
+        .then(resp => {
+          console.log('resp 111', resp);
+          setDashboardData(resp.data);
+          // resp = resp.data.slice(0, 10);
+          // setInprogressCaseDetail(inProgressRegData);
+          // setLoadingInProgressCaseDetail(false);
+        })
+        .catch(error => {
+          console.log('error:', error); // eslint-disable-line
+        });
+    } catch (error) {
+      console.log('error:', error); // eslint-disable-line
+    }
+
+    sessionStorage.setItem('assignmentFinishedFlag', 'false');
+  }
+
+  async function checkShutterService() {
+    try {
+      const status = await getServiceShutteredStatus();
+      if (!status) fetchInProgressCaseDetailData();
+      setShutterServicePage(status);
+    } catch (error) {
+      setShutterServicePage(false);
+      // Handle error appropriately, e.g., log it or show a notification
+      console.error('Error setting shutter status:', error); // eslint-disable-line
+    }
+  }
+
+  useEffect(() => {
+    setPageTitle();
+    checkShutterService();
+  }, [showPortalBanner]);
+
+  return (
+    // !loadingInProgressCaseDetail &&
+    // inprogressCaseDetail.length > 0 && (
+    <>
+      <main
+        className={`govuk-main-wrapper ${isLogout ? 'visibility-hidden' : ''}`}
+        id='main-content'
+        role='main'
+      >
+        <div className='govuk-grid-row'>
+          <div className='govuk-grid-column-full govuk-prototype-kit-common-templates-mainstream-guide-body govuk-!-padding-right-0 govuk-!-padding-left-0'>
+            <div className='govuk-grid-column-two-thirds'>
+              <h1 className='govuk-heading-l'>{t('YOUR_SELF_ASSESMENT_PENALTIES')}</h1>
+              {dashboardData.length === 0 ? (
+                <p>{t('YOU_DO_NOT_HAVE_SA_PENALTIES')}</p>
+              ) : (
+                <>
+                  <div className='govuk-body'>
+                    <p>{t('YOU_CAN_MAKE_AN_APPEAL')}</p>
+                    <p>{t('YOU_WILL_BE_ASKED_ABOUT_YOUR_REASON')}</p>
+                    <p>
+                      <a
+                        className='govuk-link'
+                        rel='noreferrer noopener'
+                        href='https://www.gov.uk/guidance/check-when-you-can-expect-a-reply-from-hmrc'
+                        target='_blank'
+                      >
+                        {t('CHECK_REPLY_FROM_HMRC')} {t('OPENS_IN_NEW_TAB')}
+                      </a>
+                      .
+                    </p>
+                  </div>
+                  <PenaltyDatails data={dashboardData} /> // getting error here - TS2741: Property 'penaltyData' is missing in type 'any[]' but required in type 'PenaltyData'.
+                  <div className='govuk-body govuk-!-static-margin-bottom-6'>
+                    <h2 className='govuk-heading-m'>{t('MAKE_AN_APPEAL')}</h2>
+                    <p>{t('IF_YOU_DONT_THINK')}</p>
+                    <p>{t('YOU_WILL_BE_ASKED_ABOUT_REASON')}</p>
+                    <p>{t('YOU_CAN_ALSO_TELL_US')}</p>
+                    <h2 className='govuk-heading-m'>{t('IF_YOU_HAVE_MORE_THAN_ONE')}</h2>
+                    <p>{t('THERE_ARE_2_TYPES')}</p>
+                    <ul className='govuk-list govuk-list--bullet'>
+                      <li>{t('LFP')}</li>
+                      <li>{t('LPP')}</li>
+                    </ul>
+                    <p> {t('APPEAL_MULTIPLE_PENALTIES')}</p>
+                    <p> {t('IF_YOU_HAVE_MORE_THAN_ONE_ACROSS_MULTIPLE_TAX_YEARS')}</p>
+                  </div>
+                  <Button
+                    id='continueToPortal'
+                    onClick={createCase}
+                    data-prevent-double-click='true'
+                    attributes={{ className: 'govuk-!-static-margin-bottom-1' }}
+                  >
+                    {t('START_NOW')}
+                  </Button>
+                  <AskHMRC />
+                  <p className='govuk-body'>
+                    <a
+                      className='govuk-link'
+                      rel='noreferrer noopener'
+                      target='_blank'
+                      href={`${hmrcURL}contact/report-technical-problem?service=427&referrerUrl=${window.location}`}
+                    >
+                      {t('PAGE_NOT_WORKING_PROPERLY')} {t('OPENS_IN_NEW_TAB')}
+                    </a>
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
+    // )
+  );
+}
+
+// sample response for above penaltyDataEndpoint or it be []
+const dashboardDataTest = {
+  penaltyData: [
+    {
+      duration: '6 April 2023 to 5 April 2024',
+      penalties: [
+        {
+          penaltyType: 'Late filing penalties',
+          results: [
+            {
+              penaltyNumber: 1,
+              additionalInfo: 'Issued when you missed the deadline for submitting your tax return.',
+              amount: 100.0
+            },
+            {
+              penaltyNumber: 2,
+              additionalInfo:
+                '3 months late: Penalty increases £10 every day up to a maximum of £900.',
+              amount: 900.0
+            },
+            {
+              penaltyNumber: 3,
+              additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
+              amount: 300.0
+            },
+            {
+              penaltyNumber: 4,
+              additionalInfo:
+                '12 months late: another 5% of tax owed or £300, whichever is higher.',
+              amount: 300.0
+            }
+          ],
+          totalAmount: 1600.0
+        },
+        {
+          penaltyType: 'Late payment penalties',
+          results: [
+            {
+              penaltyNumber: 1,
+              additionalInfo: 'Issued 30 days after the payment deadline: 5% of tax owed.',
+              amount: 250.0
+            },
+            {
+              penaltyNumber: 2,
+              additionalInfo: '6 months late: another 5% of tax owed.',
+              amount: 250.0
+            },
+            {
+              penaltyNumber: 3,
+              additionalInfo: '12 months late: another 5% of tax owed.',
+              amount: 250.0
+            }
+          ],
+          totalAmount: 750.0
+        }
+      ]
+    },
+    {
+      duration: '6 April 2022 to 5 April 2023',
+      penalties: [
+        {
+          penaltyType: 'Late filing penalties',
+          results: [
+            {
+              penaltyNumber: 1,
+              additionalInfo: 'Issued when you missed the deadline for submitting your tax return.',
+              amount: 100.0
+            },
+            {
+              penaltyNumber: 2,
+              additionalInfo:
+                '3 months late: Penalty increases £10 every day up to a maximum of £900.',
+              amount: 900.0
+            },
+            {
+              penaltyNumber: 3,
+              additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
+              amount: 300.0
+            },
+            {
+              penaltyNumber: 4,
+              additionalInfo:
+                '12 months late: another 5% of tax owed or £300, whichever is higher.',
+              amount: 300.0
+            }
+          ],
+          totalAmount: 1600.0
+        }
+      ]
+    }
+  ]
+};
+
 import React from 'react';
 import { formatOrdinal } from '../../../components/helpers/utils';
 
@@ -19,7 +268,7 @@ interface PenaltyDuration {
 }
 
 interface PenaltyData {
-  penaltyData: Array<PenaltyDuration>;
+  penaltyData: Array<PenaltyDuration> | [];
 }
 
 interface PenaltyDataProps {
@@ -80,16 +329,3 @@ const PenaltyDatails: React.FC<PenaltyDataProps> = ({ data }) => (
 );
 
 export default PenaltyDatails;
-
-
-// utils 
-export const formatOrdinal = (num: number): string => {
-  if (num <= 0) return `${num}`;
-  const suffixes = ["th", "st", "nd", "rd"];
-  const value = num % 100;
-  const suffix =
-    value > 10 && value < 20
-      ? "th"
-      : suffixes[(value % 10) < suffixes.length ? value % 10 : 0];
-  return `${num}${suffix}`;
-}
