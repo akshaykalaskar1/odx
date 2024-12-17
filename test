@@ -154,98 +154,106 @@ export default function AppealsAndPenaltiesLanding(props) {
   );
 }
 
-// sample response for above penaltyDataEndpoint or it be []
+// This is the sample response for above penaltyDataEndpoint. Here data may have array or it may be an empty array. consider this while createing types
 const dashboardDataTest = {
-  penaltyData: [
+   
+  data: [
     {
-      duration: '6 April 2023 to 5 April 2024',
-      penalties: [
+      penaltyData: [
         {
-          penaltyType: 'Late filing penalties',
-          results: [
+          duration: '6 April 2023 to 5 April 2024',
+          penalties: [
             {
-              penaltyNumber: 1,
-              additionalInfo: 'Issued when you missed the deadline for submitting your tax return.',
-              amount: 100.0
+              penaltyType: 'Late filing penalties',
+              results: [
+                {
+                  penaltyNumber: 1,
+                  additionalInfo:
+                    'Issued when you missed the deadline for submitting your tax return.',
+                  amount: 100.0
+                },
+                {
+                  penaltyNumber: 2,
+                  additionalInfo:
+                    '3 months late: Penalty increases £10 every day up to a maximum of £900.',
+                  amount: 900.0
+                },
+                {
+                  penaltyNumber: 3,
+                  additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
+                  amount: 300.0
+                },
+                {
+                  penaltyNumber: 4,
+                  additionalInfo:
+                    '12 months late: another 5% of tax owed or £300, whichever is higher.',
+                  amount: 300.0
+                }
+              ],
+              totalAmount: 1600.0
             },
             {
-              penaltyNumber: 2,
-              additionalInfo:
-                '3 months late: Penalty increases £10 every day up to a maximum of £900.',
-              amount: 900.0
-            },
-            {
-              penaltyNumber: 3,
-              additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
-              amount: 300.0
-            },
-            {
-              penaltyNumber: 4,
-              additionalInfo:
-                '12 months late: another 5% of tax owed or £300, whichever is higher.',
-              amount: 300.0
+              penaltyType: 'Late payment penalties',
+              results: [
+                {
+                  penaltyNumber: 1,
+                  additionalInfo: 'Issued 30 days after the payment deadline: 5% of tax owed.',
+                  amount: 250.0
+                },
+                {
+                  penaltyNumber: 2,
+                  additionalInfo: '6 months late: another 5% of tax owed.',
+                  amount: 250.0
+                },
+                {
+                  penaltyNumber: 3,
+                  additionalInfo: '12 months late: another 5% of tax owed.',
+                  amount: 250.0
+                }
+              ],
+              totalAmount: 750.0
             }
-          ],
-          totalAmount: 1600.0
+          ]
         },
         {
-          penaltyType: 'Late payment penalties',
-          results: [
+          duration: '6 April 2022 to 5 April 2023',
+          penalties: [
             {
-              penaltyNumber: 1,
-              additionalInfo: 'Issued 30 days after the payment deadline: 5% of tax owed.',
-              amount: 250.0
-            },
-            {
-              penaltyNumber: 2,
-              additionalInfo: '6 months late: another 5% of tax owed.',
-              amount: 250.0
-            },
-            {
-              penaltyNumber: 3,
-              additionalInfo: '12 months late: another 5% of tax owed.',
-              amount: 250.0
+              penaltyType: 'Late filing penalties',
+              results: [
+                {
+                  penaltyNumber: 1,
+                  additionalInfo:
+                    'Issued when you missed the deadline for submitting your tax return.',
+                  amount: 100.0
+                },
+                {
+                  penaltyNumber: 2,
+                  additionalInfo:
+                    '3 months late: Penalty increases £10 every day up to a maximum of £900.',
+                  amount: 900.0
+                },
+                {
+                  penaltyNumber: 3,
+                  additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
+                  amount: 300.0
+                },
+                {
+                  penaltyNumber: 4,
+                  additionalInfo:
+                    '12 months late: another 5% of tax owed or £300, whichever is higher.',
+                  amount: 300.0
+                }
+              ],
+              totalAmount: 1600.0
             }
-          ],
-          totalAmount: 750.0
-        }
-      ]
-    },
-    {
-      duration: '6 April 2022 to 5 April 2023',
-      penalties: [
-        {
-          penaltyType: 'Late filing penalties',
-          results: [
-            {
-              penaltyNumber: 1,
-              additionalInfo: 'Issued when you missed the deadline for submitting your tax return.',
-              amount: 100.0
-            },
-            {
-              penaltyNumber: 2,
-              additionalInfo:
-                '3 months late: Penalty increases £10 every day up to a maximum of £900.',
-              amount: 900.0
-            },
-            {
-              penaltyNumber: 3,
-              additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
-              amount: 300.0
-            },
-            {
-              penaltyNumber: 4,
-              additionalInfo:
-                '12 months late: another 5% of tax owed or £300, whichever is higher.',
-              amount: 300.0
-            }
-          ],
-          totalAmount: 1600.0
+          ]
         }
       ]
     }
   ]
 };
+
 
 import React from 'react';
 import { formatOrdinal } from '../../../components/helpers/utils';
