@@ -1,4 +1,4 @@
-
+// AppealsAndPenaltiesLanding.tsx
 import React, { useEffect, useState } from 'react';
 import AskHMRC from '../../../components/AppComponents/AskHMRC';
 import Button from '../../../components/BaseComponents/Button/Button';
@@ -254,7 +254,7 @@ const dashboardDataTest = {
   ]
 };
 
-
+// PenaltyDatails.tsx starts here
 import React from 'react';
 import { formatOrdinal } from '../../../components/helpers/utils';
 
