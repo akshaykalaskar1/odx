@@ -1,303 +1,40 @@
-// AppealsAndPenaltiesLanding.tsx
-import React, { useEffect, useState } from 'react';
-import AskHMRC from '../../../components/AppComponents/AskHMRC';
-import Button from '../../../components/BaseComponents/Button/Button';
+// PenaltyDatails.tsx
+
+import React from 'react';
+import { PenaltySection, PenaltyRowProps } from './PenaltyTypes';
+import { formatOrdinal } from '../../../components/helpers/utils';
 import { useTranslation } from 'react-i18next';
-import useHMRCExternalLinks from '../../../components/helpers/hooks/HMRCExternalLinks';
-import PenaltyDatails from './PenaltyDatails';
-import setPageTitle from '../../../components/helpers/setPageTitleHelpers';
-import { getServiceShutteredStatus } from '../../../components/helpers/utils';
 
-export default function AppealsAndPenaltiesLanding(props) {
-  const {
-    showPortalBanner,
-    isLogout,
-    pConn,
-    penaltyDataEndpoint,
-    creatCaseEndpoint,
-    // buttonContent,
-    // title,
-    // bannerContent,
-    handleCaseStart,
-    caseListApiParams,
-    setShutterServicePage
-  } = props;
-  const [dashboardData, setDashboardData] = useState([]);
-  // const [loadingInProgressCaseDetail, setLoadingInProgressCaseDetail] = useState(true);
+const formatDedcimal = (decimalAmount: string) => Number(decimalAmount) * 1;
+
+const DurationHeading: React.FC<{ duration: string }> = ({ duration }) => {
   const { t } = useTranslation();
-  const { hmrcURL } = useHMRCExternalLinks();
-
-  function createCase() {
-    PCore.getMashupApi().createCase(creatCaseEndpoint, PCore.getConstants().APP.APP);
-    handleCaseStart();
-  }
-
-  // Calls data page to fetch in progress caseDetail,
-  // This then sets inprogress caseDetail state value to the caseDetail details.
-  // This funtion also sets 'isloading' value to true before making d_page calls
-  function fetchInProgressCaseDetailData() {
-    // setLoadingInProgressCaseDetail(true);
-    const context = pConn.getContextName();
-    try {
-      PCore.getDataPageUtils()
-        // @ts-ignore
-        .getDataAsync(penaltyDataEndpoint, context, { ...caseListApiParams })
-        // @ts-ignore
-        .then(resp => {
-          console.log('resp 111', resp);
-          setDashboardData(resp.data);
-          // resp = resp.data.slice(0, 10);
-          // setInprogressCaseDetail(inProgressRegData);
-          // setLoadingInProgressCaseDetail(false);
-        })
-        .catch(error => {
-          console.log('error:', error); // eslint-disable-line
-        });
-    } catch (error) {
-      console.log('error:', error); // eslint-disable-line
-    }
-
-    sessionStorage.setItem('assignmentFinishedFlag', 'false');
-  }
-
-  async function checkShutterService() {
-    try {
-      const status = await getServiceShutteredStatus();
-      if (!status) fetchInProgressCaseDetailData();
-      setShutterServicePage(status);
-    } catch (error) {
-      setShutterServicePage(false);
-      // Handle error appropriately, e.g., log it or show a notification
-      console.error('Error setting shutter status:', error); // eslint-disable-line
-    }
-  }
-
-  useEffect(() => {
-    setPageTitle();
-    checkShutterService();
-  }, [showPortalBanner]);
-
   return (
-    // !loadingInProgressCaseDetail &&
-    // inprogressCaseDetail.length > 0 && (
-    <>
-      <main
-        className={`govuk-main-wrapper ${isLogout ? 'visibility-hidden' : ''}`}
-        id='main-content'
-        role='main'
-      >
-        <div className='govuk-grid-row'>
-          <div className='govuk-grid-column-full govuk-prototype-kit-common-templates-mainstream-guide-body govuk-!-padding-right-0 govuk-!-padding-left-0'>
-            <div className='govuk-grid-column-two-thirds'>
-              <h1 className='govuk-heading-l'>{t('YOUR_SELF_ASSESMENT_PENALTIES')}</h1>
-              {dashboardData.length === 0 ? (
-                <p>{t('YOU_DO_NOT_HAVE_SA_PENALTIES')}</p>
-              ) : (
-                <>
-                  <div className='govuk-body'>
-                    <p>{t('YOU_CAN_MAKE_AN_APPEAL')}</p>
-                    <p>{t('YOU_WILL_BE_ASKED_ABOUT_YOUR_REASON')}</p>
-                    <p>
-                      <a
-                        className='govuk-link'
-                        rel='noreferrer noopener'
-                        href='https://www.gov.uk/guidance/check-when-you-can-expect-a-reply-from-hmrc'
-                        target='_blank'
-                      >
-                        {t('CHECK_REPLY_FROM_HMRC')} {t('OPENS_IN_NEW_TAB')}
-                      </a>
-                      .
-                    </p>
-                  </div>
-                  <PenaltyDatails data={dashboardData} /> // getting error here - TS2741: Property 'penaltyData' is missing in type 'any[]' but required in type 'PenaltyData'.
-                  <div className='govuk-body govuk-!-static-margin-bottom-6'>
-                    <h2 className='govuk-heading-m'>{t('MAKE_AN_APPEAL')}</h2>
-                    <p>{t('IF_YOU_DONT_THINK')}</p>
-                    <p>{t('YOU_WILL_BE_ASKED_ABOUT_REASON')}</p>
-                    <p>{t('YOU_CAN_ALSO_TELL_US')}</p>
-                    <h2 className='govuk-heading-m'>{t('IF_YOU_HAVE_MORE_THAN_ONE')}</h2>
-                    <p>{t('THERE_ARE_2_TYPES')}</p>
-                    <ul className='govuk-list govuk-list--bullet'>
-                      <li>{t('LFP')}</li>
-                      <li>{t('LPP')}</li>
-                    </ul>
-                    <p> {t('APPEAL_MULTIPLE_PENALTIES')}</p>
-                    <p> {t('IF_YOU_HAVE_MORE_THAN_ONE_ACROSS_MULTIPLE_TAX_YEARS')}</p>
-                  </div>
-                  <Button
-                    id='continueToPortal'
-                    onClick={createCase}
-                    data-prevent-double-click='true'
-                    attributes={{ className: 'govuk-!-static-margin-bottom-1' }}
-                  >
-                    {t('START_NOW')}
-                  </Button>
-                  <AskHMRC />
-                  <p className='govuk-body'>
-                    <a
-                      className='govuk-link'
-                      rel='noreferrer noopener'
-                      target='_blank'
-                      href={`${hmrcURL}contact/report-technical-problem?service=427&referrerUrl=${window.location}`}
-                    >
-                      {t('PAGE_NOT_WORKING_PROPERLY')} {t('OPENS_IN_NEW_TAB')}
-                    </a>
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
-    </>
-    // )
+    <h2 className='govuk-heading-m'>
+      {t('PENALTIES_FOR_THE')} {duration} {t('TAX_YEAR')}
+    </h2>
   );
-}
-
-// This is the sample response for above penaltyDataEndpoint. Here data may have array or it may be an empty array. consider this while createing types
-const dashboardDataTest = {
-   
-  data: [
-    {
-      penaltyData: [
-        {
-          duration: '6 April 2023 to 5 April 2024',
-          penalties: [
-            {
-              penaltyType: 'Late filing penalties',
-              results: [
-                {
-                  penaltyNumber: 1,
-                  additionalInfo:
-                    'Issued when you missed the deadline for submitting your tax return.',
-                  amount: 100.0
-                },
-                {
-                  penaltyNumber: 2,
-                  additionalInfo:
-                    '3 months late: Penalty increases £10 every day up to a maximum of £900.',
-                  amount: 900.0
-                },
-                {
-                  penaltyNumber: 3,
-                  additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
-                  amount: 300.0
-                },
-                {
-                  penaltyNumber: 4,
-                  additionalInfo:
-                    '12 months late: another 5% of tax owed or £300, whichever is higher.',
-                  amount: 300.0
-                }
-              ],
-              totalAmount: 1600.0
-            },
-            {
-              penaltyType: 'Late payment penalties',
-              results: [
-                {
-                  penaltyNumber: 1,
-                  additionalInfo: 'Issued 30 days after the payment deadline: 5% of tax owed.',
-                  amount: 250.0
-                },
-                {
-                  penaltyNumber: 2,
-                  additionalInfo: '6 months late: another 5% of tax owed.',
-                  amount: 250.0
-                },
-                {
-                  penaltyNumber: 3,
-                  additionalInfo: '12 months late: another 5% of tax owed.',
-                  amount: 250.0
-                }
-              ],
-              totalAmount: 750.0
-            }
-          ]
-        },
-        {
-          duration: '6 April 2022 to 5 April 2023',
-          penalties: [
-            {
-              penaltyType: 'Late filing penalties',
-              results: [
-                {
-                  penaltyNumber: 1,
-                  additionalInfo:
-                    'Issued when you missed the deadline for submitting your tax return.',
-                  amount: 100.0
-                },
-                {
-                  penaltyNumber: 2,
-                  additionalInfo:
-                    '3 months late: Penalty increases £10 every day up to a maximum of £900.',
-                  amount: 900.0
-                },
-                {
-                  penaltyNumber: 3,
-                  additionalInfo: '6 months late: 5% of tax owed or £300, whichever is higher.',
-                  amount: 300.0
-                },
-                {
-                  penaltyNumber: 4,
-                  additionalInfo:
-                    '12 months late: another 5% of tax owed or £300, whichever is higher.',
-                  amount: 300.0
-                }
-              ],
-              totalAmount: 1600.0
-            }
-          ]
-        }
-      ]
-    }
-  ]
 };
 
-// PenaltyDatails.tsx starts here
-import React from 'react';
-import { formatOrdinal } from '../../../components/helpers/utils';
+const PenaltyRow: React.FC<PenaltyRowProps> = ({ PenaltyNumber, AdditionalInfo, Amount }) => {
+  const { t } = useTranslation();
 
-interface PenaltyRowProps {
-  penaltyNumber: number;
-  additionalInfo: string;
-  amount: number;
-}
-
-interface PenaltySection {
-  penaltyType: string;
-  results: Array<PenaltyRowProps>;
-  totalAmount: number;
-}
-
-interface PenaltyDuration {
-  duration: string;
-  penalties: Array<PenaltySection>;
-}
-
-interface PenaltyData {
-  penaltyData: Array<PenaltyDuration> | [];
-}
-
-interface PenaltyDataProps {
-  data: PenaltyData;
-}
-
-const DurationHeading: React.FC<{ duration: string }> = ({ duration }) => (
-  <h2 className='govuk-heading-m'>Penalties for the {duration} tax year</h2>
-);
-
-const PenaltyRow: React.FC<PenaltyRowProps> = ({ penaltyNumber, additionalInfo, amount }) => (
-  <div className='govuk-summary-list__row'>
-    <dt className='govuk-summary-list__key govuk-!-width-one-half'>
-      <strong>{formatOrdinal(penaltyNumber)} penalty</strong>
-      <p className='govuk-!-margin-bottom-0'>{additionalInfo}</p>
-    </dt>
-    <dd className='govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter'>
-      £{amount}
-    </dd>
-  </div>
-);
+  return (
+    <div className='govuk-summary-list__row'>
+      <dt className='govuk-summary-list__key govuk-!-width-one-half'>
+        <strong>
+          {formatOrdinal(PenaltyNumber)} {t('PENALTY')}
+        </strong>
+        <p className='govuk-!-margin-bottom-0 govuk-!-margin-top-1 font-weight-normal'>
+          {AdditionalInfo}
+        </p>
+      </dt>
+      <dd className='govuk-summary-list__value govuk-!-text-align-right govuk-!-width-one-quarter'>
+        £{formatDedcimal(Amount.toFixed(2))}
+      </dd>
+    </div>
+  );
+};
 
 const PenaltyCard: React.FC<PenaltySection> = ({ penaltyType, results, totalAmount }) => {
   const hasMultiplePenalties = results.length > 1;
@@ -308,14 +45,14 @@ const PenaltyCard: React.FC<PenaltySection> = ({ penaltyType, results, totalAmou
         <h2 className='govuk-summary-card__title govuk-!-width-one-half'>{penaltyType}</h2>
         {hasMultiplePenalties && (
           <span className='govuk-body govuk-!-text-align-right govuk-!-width-one-quarter'>
-            <strong>£{totalAmount}</strong>
+            <strong>£{formatDedcimal(totalAmount.toFixed(2))}</strong>
           </span>
         )}
       </div>
       <div className='govuk-summary-card__content'>
         <dl className='govuk-summary-list'>
           {results.map(row => (
-            <PenaltyRow key={row.penaltyNumber} {...row} />
+            <PenaltyRow key={row.PenaltyNumber} {...row} />
           ))}
         </dl>
       </div>
@@ -323,17 +60,585 @@ const PenaltyCard: React.FC<PenaltySection> = ({ penaltyType, results, totalAmou
   );
 };
 
-const PenaltyDatails: React.FC<PenaltyDataProps> = ({ data }) => (
-  <div>
-    {data.penaltyData.map(({ duration, penalties }) => (
-      <div key={duration}>
-        <DurationHeading duration={duration} />
-        {penalties.map(penaltySection => (
-          <PenaltyCard key={penaltySection.penaltyType} {...penaltySection} />
-        ))}
-      </div>
-    ))}
-  </div>
-);
+const PenaltyDatails = ({ penaltyData }) => {
+  const { t } = useTranslation();
+
+  if (!penaltyData || penaltyData.length === 0) {
+    return <p>{t('NO_PENALTIES_AVAILABLE')}</p>;
+  }
+
+  return (
+    <div>
+      {penaltyData.map(({ duration, penalties }) => (
+        <div key={duration}>
+          <DurationHeading duration={duration} />
+          {penalties.map(penaltySection => (
+            <PenaltyCard key={penaltySection.penaltyType} {...penaltySection} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default PenaltyDatails;
+
+// AppealsAndPenaltiesLanding.tsx
+import React, { useEffect, useState } from 'react';
+import AskHMRC from '../../../components/AppComponents/AskHMRC';
+import Button from '../../../components/BaseComponents/Button/Button';
+import { useTranslation } from 'react-i18next';
+import useHMRCExternalLinks from '../../../components/helpers/hooks/HMRCExternalLinks';
+import PenaltyDatails from './PenaltyDatails';
+import setPageTitle from '../../../components/helpers/setPageTitleHelpers';
+import { PenaltyDuration } from './PenaltyTypes';
+
+interface LandingProps {
+  isLogout: boolean;
+  pConn: any;
+  penaltyDataEndpoint: string;
+  creatCaseEndpoint: string;
+  handleCaseStart: () => void;
+}
+
+const AppealsAndPenaltiesLanding: React.FC<LandingProps> = props => {
+  const { isLogout, pConn, penaltyDataEndpoint, creatCaseEndpoint, handleCaseStart } = props;
+
+  const [dashboardData, setDashboardData] = useState<Array<PenaltyDuration>>(null);
+  const { t } = useTranslation();
+  const { hmrcURL } = useHMRCExternalLinks();
+
+  const createCase = () => {
+    PCore.getMashupApi().createCase(creatCaseEndpoint, PCore.getConstants().APP.APP);
+    handleCaseStart();
+  };
+
+  const fetchInProgressCaseDetailData = async () => {
+    const context = pConn.getContextName();
+    try {
+      // @ts-ignore
+      const response: any = await PCore.getDataPageUtils().getDataAsync(
+        penaltyDataEndpoint,
+        context
+      );
+      const data: Array<PenaltyDuration> =
+        response.data.length > 0 ? response.data[0].penaltyData : [];
+
+      setDashboardData(data);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error fetching in-progress case detail:', error);
+    }
+    sessionStorage.setItem('assignmentFinishedFlag', 'false');
+  };
+
+  useEffect(() => {
+    setPageTitle();
+    fetchInProgressCaseDetailData();
+  }, []);
+
+  const renderPenaltiesSection = () => (
+    <>
+      <div className='govuk-body'>
+        <p>{t('YOU_CAN_MAKE_AN_APPEAL')}</p>
+        <p>{t('YOU_WILL_BE_ASKED_ABOUT_YOUR_REASON')}</p>
+        <p>
+          <a
+            className='govuk-link'
+            rel='noreferrer noopener'
+            href='https://www.gov.uk/guidance/check-when-you-can-expect-a-reply-from-hmrc'
+            target='_blank'
+          >
+            {t('CHECK_REPLY_FROM_HMRC')} {t('OPENS_IN_NEW_TAB')}
+          </a>
+          .
+        </p>
+      </div>
+      <PenaltyDatails penaltyData={dashboardData} />
+      <div className='govuk-body govuk-!-static-margin-bottom-6'>
+        <h2 className='govuk-heading-m'>{t('MAKE_AN_APPEAL')}</h2>
+        <p>{t('IF_YOU_DONT_THINK')}</p>
+        <p>{t('YOU_WILL_BE_ASKED_ABOUT_YOUR_REASON')}</p>
+        <p>{t('YOU_CAN_ALSO_TELL_US')}</p>
+        <h2 className='govuk-heading-m'>{t('IF_YOU_HAVE_MORE_THAN_ONE')}</h2>
+        <p>{t('THERE_ARE_2_TYPES')}</p>
+        <ul className='govuk-list govuk-list--bullet'>
+          <li>{t('LFP')}</li>
+          <li>{t('LPP')}</li>
+        </ul>
+        <p>{t('APPEAL_MULTIPLE_PENALTIES')}</p>
+        <p>{t('IF_YOU_HAVE_MORE_THAN_ONE_ACROSS_MULTIPLE_TAX_YEARS')}</p>
+      </div>
+      <Button
+        id='continueToPortal'
+        onClick={createCase}
+        data-prevent-double-click='true'
+        attributes={{ className: 'govuk-!-static-margin-bottom-1' }}
+      >
+        {t('START_NOW')}
+      </Button>
+      <AskHMRC />
+      <p className='govuk-body'>
+        <a
+          className='govuk-link'
+          rel='noreferrer noopener'
+          target='_blank'
+          href={`${hmrcURL}contact/report-technical-problem?service=427&referrerUrl=${window.location}`}
+        >
+          {t('PAGE_NOT_WORKING_PROPERLY')} {t('OPENS_IN_NEW_TAB')}
+        </a>
+      </p>
+    </>
+  );
+
+  return (
+    <main
+      className={`govuk-main-wrapper ${isLogout ? 'visibility-hidden' : ''}`}
+      id='main-content'
+      role='main'
+    >
+      <div className='govuk-grid-row'>
+        <div className='govuk-grid-column-full govuk-prototype-kit-common-templates-mainstream-guide-body govuk-!-padding-right-0 govuk-!-padding-left-0'>
+          <div className='govuk-grid-column-two-thirds'>
+            <h1 className='govuk-heading-l'>{t('YOUR_SELF_ASSESMENT_PENALTIES')}</h1>
+            {dashboardData && dashboardData.length === 0 ? (
+              <p>{t('YOU_DO_NOT_HAVE_SA_PENALTIES')}</p>
+            ) : (
+              dashboardData && renderPenaltiesSection()
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+export default AppealsAndPenaltiesLanding;
+
+// AppealsAndPenalties index.tsx
+import React, { FunctionComponent, useState, useEffect, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import setPageTitle, { registerServiceName } from '../../components/helpers/setPageTitleHelpers';
+import { getSdkConfig } from '@pega/auth/lib/sdk-auth-manager';
+import AppFooter from '../../components/AppComponents/AppFooter';
+import { triggerLogout } from '../../components/helpers/utils';
+import useHMRCExternalLinks from '../../components/helpers/hooks/HMRCExternalLinks';
+import TimeoutPopup from '../../components/AppComponents/TimeoutPopup';
+import ShutterServicePage from '../../components/AppComponents/ShutterServicePage';
+import LogoutPopup from '../../components/AppComponents/LogoutPopup';
+import SummaryPage from '../../components/AppComponents/SummaryPage';
+import {
+  initTimeout,
+  settingTimer,
+  staySignedIn
+} from '../../components/AppComponents/TimeoutPopup/timeOutUtils';
+
+import toggleNotificationProcess from '../../components/helpers/toggleNotificationLanguage';
+import AppHeader from '../../components/AppComponents/AppHeader';
+import ApiServiceNotAvailable from '../../components/AppComponents/ApiErrorServiceNotAvailable';
+import { useStartMashup } from '../../reuseables/PegaSetup';
+import AppContext from '../../reuseables/AppContext';
+import { setJourneyName } from '../../components/helpers/journeyRegistry';
+import { TIMEOUT_115_SECONDS } from '../../components/helpers/constants';
+import AppealsAndPenaltiesLanding from './AppealsAndPenaltiesLanding';
+
+const AppealsAndPenalties: FunctionComponent<{ journeyName: string }> = ({ journeyName }) => {
+  const { t } = useTranslation();
+
+  // Adding dynamic value as key.
+  const serviceNameAndHeader = 'APPEAL_A_SELF_ASSESSMENT_PENALTY';
+  const penaltyDataEndpoint = 'D_GetChargesForPastFourTaxYears';
+  const creatCaseApi = 'HMRC-SA-Work-Appeal';
+  const caseListApiParams = { CaseType: 'HMRC-SA-Work-Appeal' };
+
+  const [showLandingPage, setShowLandingPage] = useState<boolean>(true);
+  const [pCoreReady, setPCoreReady] = useState(false);
+  const { showLanguageToggle } = useContext(AppContext);
+  const [showLanguageToggleState, setShowLanguageToggleState] = useState(showLanguageToggle);
+  const [currentDisplay, setCurrentDisplay] = useState<
+    | 'pegapage'
+    | 'resolutionpage'
+    | 'servicenotavailable'
+    | 'shutterpage'
+    | 'loading'
+    | 'landingpage'
+  >('pegapage');
+  const [summaryPageContent, setSummaryPageContent] = useState<any>({
+    content: null,
+    title: null,
+    banner: null
+  });
+  const [showTimeoutModal, setShowTimeoutModal] = useState(false);
+  const [showSignoutModal, setShowSignoutModal] = useState(false);
+  const [pConnect, setPconnect] = useState(null);
+  const [isLogout, setIsLogout] = useState(false);
+  const [millisecondsTillSignout, setmillisecondsTillSignout] = useState(TIMEOUT_115_SECONDS);
+
+  const { hmrcURL } = useHMRCExternalLinks();
+
+  registerServiceName(t('APPEAL_A_SELF_ASSESSMENT_PENALTY'));
+  setJourneyName(journeyName);
+
+  useEffect(() => {
+    initTimeout(setShowTimeoutModal, false, true, false);
+  }, []);
+
+  const {
+    showPega,
+    setShowPega,
+    shutterServicePage,
+    showResolutionPage,
+    caseId,
+    serviceNotAvailable,
+    assignmentPConnect,
+    assignmentCancelled,
+    setAssignmentCancelled,
+    containerClosed,
+    isPegaLoading
+  } = useStartMashup({
+    appBacklinkProps: {},
+    serviceName: serviceNameAndHeader,
+    appNameHeader: serviceNameAndHeader
+  });
+
+  useEffect(() => {
+    if (assignmentPConnect) {
+      setPconnect(assignmentPConnect);
+    }
+  }, [assignmentPConnect]);
+
+  function handleSignout(e?) {
+    e?.preventDefault();
+    if (currentDisplay === 'pegapage') {
+      setShowSignoutModal(true);
+    } else {
+      triggerLogout(setIsLogout);
+    }
+  }
+
+  const handleStaySignIn = (e?) => {
+    e?.preventDefault();
+    setShowSignoutModal(false);
+    // Extends manual signout popup 'stay signed in' to reset the automatic timeout timer also
+    staySignedIn(
+      setShowTimeoutModal,
+      penaltyDataEndpoint,
+      null,
+      false,
+      true,
+      currentDisplay === 'resolutionpage',
+      caseListApiParams
+    );
+  };
+
+  const handleCaseStart = () => {
+    setShowLandingPage(false);
+    setShowPega(true);
+  };
+
+  function closeContainer() {
+    if (PCore.getContainerUtils().getActiveContainerItemName('app/primary')) {
+      PCore.getContainerUtils().closeContainerItem(
+        PCore.getContainerUtils().getActiveContainerItemContext('app/primary'),
+        { skipDirtyCheck: true }
+      );
+    }
+  }
+
+  function returnedToPortal() {
+    closeContainer();
+    setShowPega(false);
+    setShowLandingPage(true);
+    setAssignmentCancelled(false);
+    setSummaryPageContent({
+      content: null,
+      title: null,
+      banner: null
+    });
+  }
+
+  useEffect(() => {
+    if (assignmentCancelled) {
+      // user clicked save and come back later link
+      returnedToPortal();
+    }
+  }, [assignmentCancelled]);
+
+  useEffect(() => {
+    if (isPegaLoading) {
+      setCurrentDisplay('loading');
+      return;
+    }
+
+    if (shutterServicePage) {
+      setCurrentDisplay('shutterpage');
+    } else if (showLandingPage && pCoreReady && !showResolutionPage && !shutterServicePage) {
+      setCurrentDisplay('landingpage');
+    } else if (showPega) {
+      setCurrentDisplay('pegapage');
+    } else if (showResolutionPage) {
+      setSummaryPageContent({
+        content: null,
+        title: null,
+        banner: null
+      });
+      setCurrentDisplay('resolutionpage');
+      setShowPega(false);
+      getSdkConfig().then(config => {
+        PCore.getRestClient()
+          .invokeCustomRestApi(
+            `${config.serverConfig.infinityRestServerUrl}/api/application/v2/cases/${caseId}?pageName=SubmissionSummary`,
+            {
+              method: 'GET',
+              body: '',
+              headers: '',
+              withoutDefaultHeaders: false
+            },
+            ''
+          )
+          .then(response => {
+            PCore.getPubSubUtils().unsubscribe(
+              'languageToggleTriggered',
+              'summarypageLanguageChange'
+            );
+            const summaryData: Array<any> =
+              response.data.data.caseInfo.content.ScreenContent.LocalisedContent;
+            const currentLang =
+              sessionStorage.getItem('rsdk_locale')?.slice(0, 2).toUpperCase() || 'EN';
+
+            setSummaryPageContent(summaryData.find(data => data.Language === currentLang));
+
+            PCore.getPubSubUtils().subscribe(
+              'languageToggleTriggered',
+              ({ language }) => {
+                setSummaryPageContent(
+                  summaryData.find(data => data.Language === language.toUpperCase())
+                );
+              },
+              'summarypageLanguageChange'
+            );
+          })
+          .catch(() => {
+            return false;
+          });
+      });
+    } else if (serviceNotAvailable) {
+      setCurrentDisplay('servicenotavailable');
+    } else {
+      setCurrentDisplay('loading');
+    }
+    if (!showPega) {
+      setPageTitle();
+    }
+  }, [
+    showResolutionPage,
+    showPega,
+    shutterServicePage,
+    serviceNotAvailable,
+    pCoreReady,
+    showLandingPage,
+    containerClosed,
+    isPegaLoading
+  ]);
+
+  useEffect(() => {
+    document.addEventListener('SdkConstellationReady', () => {
+      PCore.onPCoreReady(() => {
+        if (!pCoreReady) {
+          setPCoreReady(true);
+          PCore.getPubSubUtils().subscribe(
+            PCore.getConstants().PUB_SUB_EVENTS.CONTAINER_EVENTS.CLOSE_CONTAINER_ITEM,
+            () => {
+              setShowPega(false);
+            },
+            'showStartPageOnCloseContainerItem'
+          );
+          getSdkConfig().then(config => {
+            if (config.timeoutConfig.secondsTilLogout) {
+              setmillisecondsTillSignout(config.timeoutConfig.secondsTilLogout * 1000);
+            }
+          });
+        }
+      });
+      settingTimer();
+    });
+
+    return () => {
+      PCore?.getPubSubUtils().unsubscribe('CustomAssignmentFinished', 'CustomAssignmentFinished');
+      PCore.getPubSubUtils().unsubscribe(
+        PCore.getConstants().PUB_SUB_EVENTS.CONTAINER_EVENTS.CLOSE_CONTAINER_ITEM,
+        'showStartPageOnCloseContainerItem'
+      );
+    };
+  }, []);
+
+  /* ***
+   * Application specific PCore subscriptions
+   *
+   * TODO Can this be made into a tidy helper? including its own clean up? A custom hook perhaps
+   */
+  document.addEventListener('SdkConstellationReady', () => {
+    PCore.onPCoreReady(() => {
+      PCore.getPubSubUtils().subscribe(
+        PCore.getConstants().PUB_SUB_EVENTS.CONTAINER_EVENTS.CLOSE_CONTAINER_ITEM,
+        () => {
+          setShowPega(false);
+        },
+        'showStartPageOnCloseContainerItem'
+      );
+    });
+    settingTimer();
+    PCore.getStore().subscribe(() =>
+      staySignedIn(
+        setShowTimeoutModal,
+        '',
+        null,
+        false,
+        true,
+        currentDisplay === 'resolutionpage',
+        caseListApiParams
+      )
+    );
+
+    PCore?.getPubSubUtils().subscribe(
+      'showPortalScreenOnBackPress',
+      () => {
+        returnedToPortal();
+      },
+      'showPortalScreenOnBackPress'
+    );
+  });
+
+  useEffect(() => {
+    return () => {
+      PCore.getPubSubUtils().unsubscribe(
+        PCore.getConstants().PUB_SUB_EVENTS.CONTAINER_EVENTS.CLOSE_CONTAINER_ITEM,
+        'showStartPageOnCloseContainerItem'
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    getSdkConfig().then(config => {
+      setShowLanguageToggleState(config?.cessationConfig?.showLanguageToggle);
+    });
+  }, []);
+
+  if (currentDisplay === 'servicenotavailable') {
+    return (
+      <>
+        <TimeoutPopup
+          show={showTimeoutModal}
+          millisecondsTillSignout={millisecondsTillSignout}
+          staySignedinHandler={() =>
+            staySignedIn(
+              setShowTimeoutModal,
+              penaltyDataEndpoint,
+              null,
+              false,
+              true,
+              false,
+              caseListApiParams
+            )
+          }
+          signoutHandler={(e?) => {
+            e?.preventDefault();
+            triggerLogout(setIsLogout);
+          }}
+        />
+        <AppHeader
+          appname={t('APPEAL_A_SELF_ASSESSMENT_PENALTY')}
+          hasLanguageToggle={showLanguageToggleState}
+          handleSignout={handleSignout}
+          betafeedbackurl={`${hmrcURL}contact/beta-feedback?service=claim-child-benefit-frontend&backUrl=/fill-online/claim-child-benefit/recently-claimed-child-benefit`}
+        />
+        <div className='govuk-width-container'>
+          <ApiServiceNotAvailable />
+        </div>
+        <AppFooter />
+      </>
+    );
+  } else {
+    return (
+      <AppContext.Provider
+        value={{
+          appBacklinkProps: {},
+          showLanguageToggle,
+          serviceName: serviceNameAndHeader,
+          appNameHeader: serviceNameAndHeader
+        }}
+      >
+        <TimeoutPopup
+          show={showTimeoutModal}
+          millisecondsTillSignout={millisecondsTillSignout}
+          staySignedinHandler={() =>
+            staySignedIn(
+              setShowTimeoutModal,
+              penaltyDataEndpoint,
+              null,
+              false,
+              true,
+              currentDisplay === 'resolutionpage',
+              caseListApiParams
+            )
+          }
+          signoutHandler={(e?) => {
+            e?.preventDefault();
+            triggerLogout(setIsLogout);
+          }}
+        />
+        <AppHeader
+          handleSignout={handleSignout}
+          appname={t('APPEAL_A_SELF_ASSESSMENT_PENALTY')}
+          hasLanguageToggle={showLanguageToggleState}
+          isPegaApp={showPega}
+          languageToggleCallback={toggleNotificationProcess(
+            { en: 'SwitchLanguageToEnglish', cy: 'SwitchLanguageToWelsh' },
+            assignmentPConnect?.getDataObject()?.caseInfo ? assignmentPConnect : null
+          )}
+          betafeedbackurl={`${hmrcURL}contact/beta-feedback?service=claim-child-benefit-frontend&backUrl=/fill-online/claim-child-benefit/recently-claimed-child-benefit`}
+        />
+        <div className='govuk-width-container'>
+          {currentDisplay === 'shutterpage' ? (
+            <ShutterServicePage />
+          ) : (
+            <>
+              <div id='pega-part-of-page'>
+                <div id='pega-root' className={`${isLogout ? 'visibility-hidden' : ''}`}></div>
+              </div>
+              {currentDisplay === 'landingpage' && (
+                <>
+                  <AppealsAndPenaltiesLanding
+                    isLogout={isLogout}
+                    pConn={pConnect}
+                    penaltyDataEndpoint={penaltyDataEndpoint}
+                    creatCaseEndpoint={creatCaseApi}
+                    handleCaseStart={handleCaseStart}
+                  ></AppealsAndPenaltiesLanding>
+                </>
+              )}
+              {currentDisplay === 'resolutionpage' && (
+                <SummaryPage
+                  summaryContent={summaryPageContent?.Content}
+                  summaryTitle={summaryPageContent?.Title}
+                  summaryBanner={summaryPageContent?.Banner}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        <LogoutPopup
+          show={showSignoutModal && !showTimeoutModal}
+          hideModal={() => setShowSignoutModal(false)}
+          handleSignoutModal={() => {
+            triggerLogout(setIsLogout);
+          }}
+          handleStaySignIn={handleStaySignIn}
+        />
+        <AppFooter />
+      </AppContext.Provider>
+    );
+  }
+};
+export default AppealsAndPenalties;
