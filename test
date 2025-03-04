@@ -1,107 +1,110 @@
-import React, { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { initReactI18next } from 'react-i18next';
-import Backend from 'i18next-http-backend';
-import i18n from 'i18next';
-import Registration from '../Registration/index';
-import CookiePage from '../Registration/cookiePage/index';
-import Accessibility from '../Registration/AccessibilityPage';
-import AccessibilityCessation from '../Cessation/AccessibilityPage';
-import setPageTitle from '../../components/helpers/setPageTitleHelpers';
-import ProtectedRoute from '../../components/HOC/ProtectedRoute';
-import Cessation from '../Cessation';
-import AppealsAndPenalties from '../AppealsAndPenalties';
-import AppWrapper from '../../components/AppComponents/AppWrapper';
-import AccessibilityAppealsAndPenalties from '../AppealsAndPenalties/AccessibilityPage';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const AppSelector = () => {
-  const [i18nloaded, seti18nloaded] = useState(false);
+import { getSdkConfig, loginIfNecessary, sdkIsLoggedIn, sdkSetAuthHeader } from '@pega/auth/lib/sdk-auth-manager';
 
-  useEffect(() => {
-    i18n
-      .use(Backend)
-      .use(initReactI18next)
-      .init({
-        lng: sessionStorage.getItem('rsdk_locale')?.substring(0, 2) || 'en',
-        backend: {
-          loadPath: `assets/i18n/{{lng}}.json`
-        },
-        fallbackLng: 'en',
-        debug: false,
-        returnNull: false,
-        react: {
-          useSuspense: false
-        }
-      })
-      .finally(() => {
-        seti18nloaded(true);
-        setPageTitle();
-      });
-  }, []);
+/**
+ * ProtectedRoute: A wrapper around a route that ensures the user is authenticated before rendering the component.
+ * If the user is not logged in, it triggers authentication and redirects to the appropriate login flow.
+ */
+const ProtectedRoute = ({ component: Component, ...rest }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  return !i18nloaded ? null : (
-    <Routes>
-      <Route path='/' element={<Navigate to='/registration' replace />} />
+  /**
+   * Called after a successful login redirect. Ensures the user is navigated to the correct page.
+   */
+  const onRedirectDone = () => {
+    navigate(location.pathname, { replace: true });
+    // appName and mainRedirect params have to be same as earlier invocation
+    loginIfNecessary({ appName: 'sa', mainRedirect: true });
+  };
 
-      {/* Private Routes */}
-      <Route path='/registration' element={<ProtectedRoute component={Registration} journeyName='registration' />} />
-      <Route path='/cessation' element={<ProtectedRoute component={Cessation} journeyName='cessation' />} />
-      <Route
-        path='/appeal-a-self-assessment-penalty'
-        element={<ProtectedRoute component={AppealsAndPenalties} journeyName='appeal-a-self-assessment-penalty' />}
-      />
+  // If the user is not logged in, initiate login flow
+  if (!sdkIsLoggedIn()) {
+    getSdkConfig().then(sdkConfig => {
+      const sdkConfigAuth = sdkConfig.authConfig;
 
-      {/* Public Routes */}
-      <Route
-        path='/registration-cookies'
-        element={
-          <AppWrapper baseurl='registration'>
-            <CookiePage />
-          </AppWrapper>
-        }
-      />
-      <Route
-        path='/registration-accessibility'
-        element={
-          <AppWrapper baseurl='registration'>
-            <Accessibility />
-          </AppWrapper>
-        }
-      />
-      <Route
-        path='/cessation-cookies'
-        element={
-          <AppWrapper baseurl='cessation'>
-            <CookiePage />
-          </AppWrapper>
-        }
-      />
-      <Route
-        path='/cessation-accessibility'
-        element={
-          <AppWrapper baseurl='cessation'>
-            <AccessibilityCessation />
-          </AppWrapper>
-        }
-      />
-      <Route
-        path='/appeal-a-self-assessment-penalty-cookies'
-        element={
-          <AppWrapper baseurl='appeal-a-self-assessment-penalty'>
-            <CookiePage />
-          </AppWrapper>
-        }
-      />
-      <Route
-        path='/appeal-a-self-assessment-penalty-accessibility'
-        element={
-          <AppWrapper baseurl='appeal-a-self-assessment-penalty'>
-            <AccessibilityAppealsAndPenalties />
-          </AppWrapper>
-        }
-      />
-    </Routes>
-  );
+      if (!sdkConfigAuth.mashupClientId && sdkConfigAuth.customAuthType === 'Basic') {
+        // Service package to use custom auth with Basic
+        const sB64 = window.btoa(`${sdkConfigAuth.mashupUserIdentifier}:${window.atob(sdkConfigAuth.mashupPassword)}`);
+        sdkSetAuthHeader(`Basic ${sB64}`);
+      }
+
+      if (!sdkConfigAuth.mashupClientId && sdkConfigAuth.customAuthType === 'BasicTO') {
+        const now = new Date();
+        const expTime = new Date(now.getTime() + 5 * 60 * 1000);
+        let sISOTime = `${expTime.toISOString().split('.')[0]}Z`;
+        const regex = /[-:]/g;
+        sISOTime = sISOTime.replace(regex, '');
+        // Service package to use custom auth with Basic
+        const sB64 = window.btoa(`${sdkConfigAuth.mashupUserIdentifier}:${window.atob(sdkConfigAuth.mashupPassword)}:${sISOTime}`);
+        sdkSetAuthHeader(`Basic ${sB64}`);
+      }
+
+      // Login if needed, without doing an initial main window redirect
+      loginIfNecessary({ appName: 'sa', mainRedirect: true, redirectDoneCB: onRedirectDone });
+    });
+  }
+
+  return <Component {...rest} journeyName={rest.journeyName} />;
 };
 
-export default AppSelector;
+export default ProtectedRoute;
+
+import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
+import { sdkIsLoggedIn, loginIfNecessary, getSdkConfig } from '@pega/auth/lib/sdk-auth-manager';
+
+// Mock React Router hooks
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: jest.fn(),
+  useLocation: jest.fn(() => ({ pathname: '/cessation' }))
+}));
+
+const MockComponent = () => <div>Private pages</div>;
+
+// Mock authentication functions
+jest.mock('@pega/auth/lib/sdk-auth-manager', () => ({
+  getSdkConfig: jest.fn(() => Promise.resolve({ authConfig: {} })),
+  loginIfNecessary: jest.fn(),
+  sdkIsLoggedIn: jest.fn(),
+  sdkSetAuthHeader: jest.fn()
+}));
+
+describe('ProtectedRoute Component', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('Redirects to login if user is not authenticated', async () => {
+    (sdkIsLoggedIn as jest.Mock).mockReturnValue(false);
+    (getSdkConfig as jest.Mock).mockResolvedValue({ authConfig: {} });
+
+    render(
+      <MemoryRouter>
+        <ProtectedRoute component={MockComponent} />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(loginIfNecessary).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  test('Renders component if user is authenticated', () => {
+    (sdkIsLoggedIn as jest.Mock).mockReturnValue(true);
+
+    render(
+      <MemoryRouter>
+        <ProtectedRoute component={MockComponent} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Private pages')).toBeInTheDocument();
+    expect(loginIfNecessary).not.toHaveBeenCalled();
+  });
+});
+
