@@ -1,110 +1,51 @@
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+else {
+      const formFields = PCore.getContextTreeManager().getFieldsList(context);
+      const formFieldsArray = [...formFields].map(([key, value]) => {
+        return { key, value };
+      });
 
-import { getSdkConfig, loginIfNecessary, sdkIsLoggedIn, sdkSetAuthHeader } from '@pega/auth/lib/sdk-auth-manager';
+      formFieldsArray.forEach(element => {
+        const { propertyName, pageReference, componentName: type, label, index: displayOrder } = element.value.props;
 
-/**
- * ProtectedRoute: A wrapper around a route that ensures the user is authenticated before rendering the component.
- * If the user is not logged in, it triggers authentication and redirects to the appropriate login flow.
- */
-const ProtectedRoute = ({ component: Component, ...rest }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
+        const errorVal = PCore.getMessageManager().getMessages({
+          property: propertyName,
+          pageReference,
+          context,
+          type: 'error'
+        });
 
-  /**
-   * Called after a successful login redirect. Ensures the user is navigated to the correct page.
-   */
-  const onRedirectDone = () => {
-    navigate(location.pathname, { replace: true });
-    // appName and mainRedirect params have to be same as earlier invocation
-    loginIfNecessary({ appName: 'sa', mainRedirect: true });
-  };
+        let validateMessage = '';
+        if (errorVal.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          errorVal.forEach(element => {
+            validateMessage =
+              validateMessage + (validateMessage.length > 0 ? '. ' : '') + localizedVal(removeRedundantString(element.message), 'Messages');
+          });
+        }
+        if (validateMessage === '') return;
 
-  // If the user is not logged in, initiate login flow
-  if (!sdkIsLoggedIn()) {
-    getSdkConfig().then(sdkConfig => {
-      const sdkConfigAuth = sdkConfig.authConfig;
+        const formattedPropertyName = propertyName.includes('.') ? propertyName.split('.').pop() : null; // Todo : get sturdy way of getting exact property name
+        let fieldId = formattedPropertyName;
 
-      if (!sdkConfigAuth.mashupClientId && sdkConfigAuth.customAuthType === 'Basic') {
-        // Service package to use custom auth with Basic
-        const sB64 = window.btoa(`${sdkConfigAuth.mashupUserIdentifier}:${window.atob(sdkConfigAuth.mashupPassword)}`);
-        sdkSetAuthHeader(`Basic ${sB64}`);
-      }
+        if (type === 'Date') {
+          const DateErrorTargetFieldId = DateErrorTargetFields(validateMessage);
+          fieldId = `${formattedPropertyName}-day`;
+          if (DateErrorTargetFieldId.includes(`month`)) {
+            fieldId = `${formattedPropertyName}-month`;
+          } else if (DateErrorTargetFieldId.includes(`year`)) {
+            fieldId = `${formattedPropertyName}-year`;
+          }
+          validateMessage = DateErrorFormatter(validateMessage, label);
+        }
 
-      if (!sdkConfigAuth.mashupClientId && sdkConfigAuth.customAuthType === 'BasicTO') {
-        const now = new Date();
-        const expTime = new Date(now.getTime() + 5 * 60 * 1000);
-        let sISOTime = `${expTime.toISOString().split('.')[0]}Z`;
-        const regex = /[-:]/g;
-        sISOTime = sISOTime.replace(regex, '');
-        // Service package to use custom auth with Basic
-        const sB64 = window.btoa(`${sdkConfigAuth.mashupUserIdentifier}:${window.atob(sdkConfigAuth.mashupPassword)}:${sISOTime}`);
-        sdkSetAuthHeader(`Basic ${sB64}`);
-      }
-
-      // Login if needed, without doing an initial main window redirect
-      loginIfNecessary({ appName: 'sa', mainRedirect: true, redirectDoneCB: onRedirectDone });
-    });
-  }
-
-  return <Component {...rest} journeyName={rest.journeyName} />;
-};
-
-export default ProtectedRoute;
-
-import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
-import { sdkIsLoggedIn, loginIfNecessary, getSdkConfig } from '@pega/auth/lib/sdk-auth-manager';
-
-// Mock React Router hooks
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
-  useLocation: jest.fn(() => ({ pathname: '/cessation' }))
-}));
-
-const MockComponent = () => <div>Private pages</div>;
-
-// Mock authentication functions
-jest.mock('@pega/auth/lib/sdk-auth-manager', () => ({
-  getSdkConfig: jest.fn(() => Promise.resolve({ authConfig: {} })),
-  loginIfNecessary: jest.fn(),
-  sdkIsLoggedIn: jest.fn(),
-  sdkSetAuthHeader: jest.fn()
-}));
-
-describe('ProtectedRoute Component', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('Redirects to login if user is not authenticated', async () => {
-    (sdkIsLoggedIn as jest.Mock).mockReturnValue(false);
-    (getSdkConfig as jest.Mock).mockResolvedValue({ authConfig: {} });
-
-    render(
-      <MemoryRouter>
-        <ProtectedRoute component={MockComponent} />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(loginIfNecessary).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  test('Renders component if user is authenticated', () => {
-    (sdkIsLoggedIn as jest.Mock).mockReturnValue(true);
-
-    render(
-      <MemoryRouter>
-        <ProtectedRoute component={MockComponent} />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByText('Private pages')).toBeInTheDocument();
-    expect(loginIfNecessary).not.toHaveBeenCalled();
-  });
-});
-
+        errorStateProps.push({
+          message: {
+            message: localizedVal(validateMessage),
+            pageReference,
+            fieldId,
+            propertyName
+          },
+          displayOrder
+        });
+      });
+    }
