@@ -1,51 +1,21 @@
-else {
-      const formFields = PCore.getContextTreeManager().getFieldsList(context);
-      const formFieldsArray = [...formFields].map(([key, value]) => {
-        return { key, value };
-      });
+interface ViewAllDetailsProps {
+  details: DetailsTypes;
+  redirectCurrentYearPage: () => void;
+  // eslint-disable-next-line no-unused-vars
+  handleLinkClick: (d: string) => void;
 
-      formFieldsArray.forEach(element => {
-        const { propertyName, pageReference, componentName: type, label, index: displayOrder } = element.value.props;
+  beginIntrruptionPage: (
+    // eslint-disable-next-line no-unused-vars
+    empSeq: string,
+    // eslint-disable-next-line no-unused-vars
+    handleClick: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, path: string) => void,
+    // eslint-disable-next-line no-unused-vars
+    fromPage: string
+  ) => void;
+}
 
-        const errorVal = PCore.getMessageManager().getMessages({
-          property: propertyName,
-          pageReference,
-          context,
-          type: 'error'
-        });
 
-        let validateMessage = '';
-        if (errorVal.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-shadow
-          errorVal.forEach(element => {
-            validateMessage =
-              validateMessage + (validateMessage.length > 0 ? '. ' : '') + localizedVal(removeRedundantString(element.message), 'Messages');
-          });
-        }
-        if (validateMessage === '') return;
-
-        const formattedPropertyName = propertyName.includes('.') ? propertyName.split('.').pop() : null; // Todo : get sturdy way of getting exact property name
-        let fieldId = formattedPropertyName;
-
-        if (type === 'Date') {
-          const DateErrorTargetFieldId = DateErrorTargetFields(validateMessage);
-          fieldId = `${formattedPropertyName}-day`;
-          if (DateErrorTargetFieldId.includes(`month`)) {
-            fieldId = `${formattedPropertyName}-month`;
-          } else if (DateErrorTargetFieldId.includes(`year`)) {
-            fieldId = `${formattedPropertyName}-year`;
-          }
-          validateMessage = DateErrorFormatter(validateMessage, label);
-        }
-
-        errorStateProps.push({
-          message: {
-            message: localizedVal(validateMessage),
-            pageReference,
-            fieldId,
-            propertyName
-          },
-          displayOrder
-        });
-      });
-    }
+ const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, path: string) => {
+    e.preventDefault();
+    handleLinkClick(path);
+  };
