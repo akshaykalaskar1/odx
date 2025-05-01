@@ -1,21 +1,66 @@
-interface ViewAllDetailsProps {
-  details: DetailsTypes;
-  redirectCurrentYearPage: () => void;
-  // eslint-disable-next-line no-unused-vars
-  handleLinkClick: (d: string) => void;
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { getServiceStatus } from '../../helpers/utils';
+import { ServiceFallbackContext } from '../../helpers/HMRCAppContext';
+import ServiceFallbackPages from '../ServiceFallbackPages';
 
-  beginIntrruptionPage: (
-    // eslint-disable-next-line no-unused-vars
-    empSeq: string,
-    // eslint-disable-next-line no-unused-vars
-    handleClick: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, path: string) => void,
-    // eslint-disable-next-line no-unused-vars
-    fromPage: string
-  ) => void;
+interface ShutterServiceProps {
+  children: ReactElement;
 }
 
+interface ServiceStatusType {
+  shuttered: boolean;
+  outage: boolean;
+  time: String | undefined;
+  date: String | undefined;
+  time_cy: String | undefined;
+  date_cy: String | undefined;
+}
 
- const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, path: string) => {
-    e.preventDefault();
-    handleLinkClick(path);
+function ServiceFallbackPageWrapper({ children }: ShutterServiceProps) {
+  const defaultServiceStatus = {
+    shuttered: false,
+    outage: false,
+    time: undefined,
+    date: undefined,
+    time_cy: undefined,
+    date_cy: undefined
   };
+
+  const hasStatusChecked = useRef(false);
+
+  const [serviceStatus, setServiceStatus] = useState<ServiceStatusType>(defaultServiceStatus);
+
+  const refreshServiceStatus = useCallback(async (): Promise<boolean> => {
+    const serviceStatusResponse = await getServiceStatus();
+
+    setServiceStatus({
+      shuttered: serviceStatusResponse.Shuttered,
+      outage: serviceStatusResponse.Outage,
+      time: serviceStatusResponse.Time,
+      date: serviceStatusResponse.Date,
+      time_cy: serviceStatusResponse.Time_CY,
+      date_cy: serviceStatusResponse.Date_CY
+    });
+
+    const statusCheckCompleted = true;
+    return statusCheckCompleted;
+  }, []);
+
+  useEffect(() => {
+    if (hasStatusChecked.current) return;
+    hasStatusChecked.current = true;
+    refreshServiceStatus();
+  }, []);
+
+  if (serviceStatus.outage || serviceStatus.shuttered) {
+    return <ServiceFallbackPages serviceStatus={serviceStatus} />;
+  }
+
+  return (
+    <ServiceFallbackContext.Provider value={{ refreshServiceStatus }}>
+      {children}
+    </ServiceFallbackContext.Provider>
+  );
+}
+
+export default ServiceFallbackPageWrapper;
