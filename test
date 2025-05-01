@@ -1,66 +1,78 @@
-import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
-import { getServiceStatus } from '../../helpers/utils';
-import { ServiceFallbackContext } from '../../helpers/HMRCAppContext';
-import ServiceFallbackPages from '../ServiceFallbackPages';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import MainWrapper from '../../BaseComponents/MainWrapper';
+import setPageTitle from '../../helpers/setPageTitleHelpers';
+import { getCurrentLanguage } from '../../helpers/utils';
+import AskHMRC from '../AskHMRC';
 
-interface ShutterServiceProps {
-  children: ReactElement;
-}
-
-interface ServiceStatusType {
+interface ServiceFallbackPagesProps {
   shuttered: boolean;
   outage: boolean;
-  time: String | undefined;
-  date: String | undefined;
-  time_cy: String | undefined;
-  date_cy: String | undefined;
+  time: String;
+  date: String;
+  time_cy: String;
+  date_cy: String;
 }
 
-function ServiceFallbackPageWrapper({ children }: ShutterServiceProps) {
-  const defaultServiceStatus = {
-    shuttered: false,
-    outage: false,
-    time: undefined,
-    date: undefined,
-    time_cy: undefined,
-    date_cy: undefined
-  };
+export default function ServiceFallbackPages({
+  serviceStatus
+}: {
+  serviceStatus: ServiceFallbackPagesProps;
+}) {
+  const { shuttered, outage, time, date, time_cy, date_cy } = serviceStatus;
+  const { t } = useTranslation();
+  const lang = getCurrentLanguage();
 
-  const hasStatusChecked = useRef(false);
+  let timeWithLocale = time;
+  let dateWithLocale = date;
 
-  const [serviceStatus, setServiceStatus] = useState<ServiceStatusType>(defaultServiceStatus);
+  if (lang === 'cy') {
+    timeWithLocale = time_cy;
+    dateWithLocale = date_cy;
+  }
+  function getFallbackPage() {
+    if (outage) {
+      return (
+        <>
+          <h1 className='govuk-heading-l'>{t('SERVICE_NOT_AVAILABLE')}</h1>
+          <p className='govuk-body'>
+            {t('YOU_WILL_BE_ABLE_TO_USE_SERVICE')} {timeWithLocale} {t('ON')} {dateWithLocale}
+          </p>
+          <p className='govuk-body'>
+            <a
+              target='_blank'
+              rel='noreferrer noopener'
+              href='https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment'
+              className='govuk-link'
+            >
+              {t('CONTACT_HMRC_Self_Assessment')} {t('OPENS_IN_NEW_TAB')}
+            </a>{' '}
+            {t('IF_YOU_NEED_TO_SPEAK')}
+          </p>
+        </>
+      );
+    }
 
-  const refreshServiceStatus = useCallback(async (): Promise<boolean> => {
-    const serviceStatusResponse = await getServiceStatus();
-
-    setServiceStatus({
-      shuttered: serviceStatusResponse.Shuttered,
-      outage: serviceStatusResponse.Outage,
-      time: serviceStatusResponse.Time,
-      date: serviceStatusResponse.Date,
-      time_cy: serviceStatusResponse.Time_CY,
-      date_cy: serviceStatusResponse.Date_CY
-    });
-
-    const statusCheckCompleted = true;
-    return statusCheckCompleted;
-  }, []);
-
-  useEffect(() => {
-    if (hasStatusChecked.current) return;
-    hasStatusChecked.current = true;
-    refreshServiceStatus();
-  }, []);
-
-  if (serviceStatus.outage || serviceStatus.shuttered) {
-    return <ServiceFallbackPages serviceStatus={serviceStatus} />;
+    if (shuttered) {
+      return (
+        <>
+          <h1 className='govuk-heading-l'>{t('SHUTTER_SERVICE_UNAVAILABLE')}</h1>
+          <p className='govuk-body'>{t('SHUTTER_USE_SERVICE_LATER_MESSAGE')}</p>
+        </>
+      );
+    }
   }
 
+  useEffect(() => {
+    setPageTitle();
+  }, [lang]);
+
   return (
-    <ServiceFallbackContext.Provider value={{ refreshServiceStatus }}>
-      {children}
-    </ServiceFallbackContext.Provider>
+    <MainWrapper>
+      <>
+        {getFallbackPage()}
+        <AskHMRC />
+      </>
+    </MainWrapper>
   );
 }
-
-export default ServiceFallbackPageWrapper;
