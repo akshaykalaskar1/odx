@@ -459,3 +459,20 @@ export default AppealsAndPenaltiesLanding;
       setServiceStatus(serviceStatusResponse);
     }
 setServiceStatus is coming from props/ also updated the interface
+
+
+ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx 154:11-37
+[tsl] ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx(154,12)
+      TS2741: Property 'setServiceStatus' is missing in type '{ isLogout: boolean; pConn: Partial<C11nEnv>; penaltyDataEndpoint: string; createCaseEndpoint: string; handleCaseStart: () => void; penaltyDataEndpointParams: {}; }' but required in type 'LandingProps'.
+ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx 172:14-40
+[tsl] ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx(172,15)
+      TS2741: Property 'setServiceStatus' is missing in type '{ isLogout: boolean; pConn: Partial<C11nEnv>; penaltyDataEndpoint: string; createCaseEndpoint: string; handleCaseStart: () => void; penaltyDataEndpointParams: {}; }' but required in type 'LandingProps'.
+ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx 188:14-40
+[tsl] ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx(188,15)
+      TS2741: Property 'setServiceStatus' is missing in type '{ isLogout: boolean; pConn: Partial<C11nEnv>; penaltyDataEndpoint: string; createCaseEndpoint: string; handleCaseStart: () => void; penaltyDataEndpointParams: {}; }' but required in type 'LandingProps'.
+ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx 202:14-40
+[tsl] ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx(202,15)
+      TS2741: Property 'setServiceStatus' is missing in type '{ isLogout: boolean; pConn: Partial<C11nEnv>; penaltyDataEndpoint: string; createCaseEndpoint: string; handleCaseStart: () => void; penaltyDataEndpointParams: {}; }' but required in type 'LandingProps'.
+ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx 232:14-40
+[tsl] ERROR in D:\Users\U.7867912\Code\Self Assesment\sdk24\sa-registry\src\samples\AppealsAndPenalties\AppealsAndPenaltiesLanding\index.test.tsx(232,15)
+      TS2741: Property 'setServiceStatus' is missing in type '{ isLogout: boolean; pConn: Partial<C11nEnv>; penaltyDataEndpoint: string; createCaseEndpoint: string; handleCaseStart: () => void; penaltyDataEndpointParams: {}; }' but required in type 'LandingProps'.
