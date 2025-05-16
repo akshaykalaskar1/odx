@@ -1,78 +1,461 @@
-import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import MainWrapper from '../../BaseComponents/MainWrapper';
-import setPageTitle from '../../helpers/setPageTitleHelpers';
-import { getCurrentLanguage } from '../../helpers/utils';
-import AskHMRC from '../AskHMRC';
+//test cases
+import { Dispatch, SetStateAction } from 'react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { I18nextProvider, useTranslation } from 'react-i18next';
+import { renderHook } from '@testing-library/react-hooks';
+import { act } from 'react-dom/test-utils';
+import { mockGetSdkConfigWithBasepath } from '../../../../tests/mocks/getSdkConfigMock';
+import useHMRCExternalLinks from '../../../components/helpers/hooks/HMRCExternalLinks';
+import AppealsAndPenaltiesLanding from '.';
+import C11nEnv from '@pega/pcore-pconnect-typedefs/interpreter/c11n-env';
+import { ServiceStatusType } from '../../../components/helpers/getServiceStatus';
 
-interface ServiceFallbackPagesProps {
-  shuttered: boolean;
-  outage: boolean;
-  time: String;
-  date: String;
-  time_cy: String;
-  date_cy: String;
+jest.mock('@pega/auth/lib/sdk-auth-manager', () => ({
+  getSdkConfig: jest.fn()
+}));
+
+const mockCreateCase = jest.fn();
+const mockHandleCaseStart = jest.fn();
+
+interface LandingPropsType {
+  isLogout: boolean;
+  pConn: Partial<C11nEnv>;
+  penaltyDataEndpoint: string;
+  createCaseEndpoint: string;
+  handleCaseStart: () => void;
+  penaltyDataEndpointParams: {};
 }
 
-export default function ServiceFallbackPages({
-  serviceStatus
-}: {
-  serviceStatus: ServiceFallbackPagesProps;
-}) {
-  const { shuttered, outage, time, date, time_cy, date_cy } = serviceStatus;
+const defaultProps: LandingPropsType = {
+  isLogout: false,
+  pConn: {
+    getContextName: () => 'mockContext'
+  },
+  penaltyDataEndpoint: '/mock/penalty-data-endpoint',
+  createCaseEndpoint: '/mock/create-case-endpoint',
+  handleCaseStart: mockHandleCaseStart,
+  penaltyDataEndpointParams: { LocalisedContent: true }
+};
+
+const responseContentObject = {
+  fetchDateTime: '2025-03-18T17:26:45.613Z',
+  pxObjClass: 'Pega-API-DataExploration-Data',
+  resultCount: 1,
+  data: [
+    {
+      pxObjClass: 'HMRC-SA-Data-Appeal',
+      LocalisedContent: [
+        {
+          pxObjClass: 'HMRC-SA-Data-LocalisedContent',
+          Language: 'EN',
+          penaltyData: [
+            {
+              duration: '6 April 2024 to 5 April 2025',
+              pxObjClass: 'HMRC-SA-Data-PenaltyData',
+              penalties: [
+                {
+                  pxObjClass: 'HMRC-SA-Data-PenaltyData-Results',
+                  totalAmount: 1600.0,
+                  penaltyType: 'Late filing penalties',
+                  results: [
+                    {
+                      pxObjClass: 'HMRC-SA-Data-Penalty',
+                      AdditionalInfo:
+                        'Issued when you missed the deadline for submitting your tax return.',
+                      PenaltyNumber: 1,
+                      Amount: 100.0,
+                      RelevantDueDate: '2024-04-20'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          pxObjClass: 'HMRC-SA-Data-LocalisedContent',
+          Language: 'CY',
+          penaltyData: [
+            {
+              duration: '6 Ebrill 2024 i 5 Ebrill 2025',
+              pxObjClass: 'HMRC-SA-Data-PenaltyData',
+              penalties: [
+                {
+                  pxObjClass: 'HMRC-SA-Data-PenaltyData-Results',
+                  totalAmount: 1600.0,
+                  penaltyType: 'Cosbau am gyflwyno’n hwyr',
+                  results: [
+                    {
+                      pxObjClass: 'HMRC-SA-Data-Penalty',
+                      AdditionalInfo:
+                        'Codwyd pan wnaethoch fethu’r dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth.',
+                      PenaltyNumber: 1,
+                      Amount: 100.0,
+                      RelevantDueDate: '2024-04-20'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+describe('AppealsAndPenaltiesLanding Component.', () => {
+  let t;
+  afterEach(cleanup);
+  let mockGetPageDataAsync;
+
+  beforeEach(async () => {
+    mockGetSdkConfigWithBasepath();
+
+    // Mocking PCore
+    (window as any).PCore = {
+      getMashupApi: () => ({
+        createCase: mockCreateCase
+      })
+    };
+
+    t = renderHook(() => useTranslation());
+    const { result } = renderHook(() => useHMRCExternalLinks());
+    await act(async () => {
+      t.result.current.i18n.changeLanguage('en');
+      result.current.referrerURL = 'https://www.staging.tax.service.gov.uk/';
+      result.current.hmrcURL = 'https://www.staging.tax.service.gov.uk/';
+      result.current.hmrcUrlMigrated = 'https://test-www.tax.service.gov.uk/';
+    });
+
+    jest.clearAllMocks();
+
+    sessionStorage.setItem('rsdk_locale', `en_GB`);
+    mockCreateCase.mockResolvedValue({ data: [] });
+    mockGetPageDataAsync = jest.fn();
+    const mockEventEmitter = {
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn()
+    };
+
+    (window as any).PCore = {
+      getDataPageUtils: jest.fn(() => ({
+        getDataAsync: mockGetPageDataAsync
+      })),
+      getPubSubUtils: jest.fn(() => {
+        return mockEventEmitter;
+      })
+    };
+  });
+
+  it('renders correctly with default props', async () => {
+    await act(async () => {
+      render(
+        <I18nextProvider i18n={t.result.current.i18n}>
+          render(
+          <AppealsAndPenaltiesLanding {...defaultProps} />
+          );
+        </I18nextProvider>
+      );
+    });
+    // @ts-ignore
+    expect(screen.getByRole('main')).toBeInTheDocument();
+    // @ts-ignore
+    expect(screen.getByText('Your Self Assessment penalties')).toBeInTheDocument();
+  });
+
+  it('renders "no penalties" message in english when no data is fetched', async () => {
+    mockCreateCase.mockResolvedValue({ data: [] });
+
+    mockGetPageDataAsync.mockResolvedValue(null);
+
+    await act(async () => {
+      t.result.current.i18n.changeLanguage('en');
+      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
+    });
+
+    await waitFor(() => {
+      // @ts-ignore
+      expect(screen.getByText('You do not have any Self Assessment penalties')).toBeInTheDocument();
+    });
+  });
+
+  it('renders "no penalties" message in welsh when no data is fetched', async () => {
+    mockCreateCase.mockResolvedValue({ data: [] });
+
+    mockGetPageDataAsync.mockResolvedValue(null);
+
+    await act(async () => {
+      t.result.current.i18n.changeLanguage('cy');
+      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Nid oes gennych unrhyw gosbau Hunanasesiad')).toBeInTheDocument();
+    });
+  });
+
+  it('renders dashboard common content in english', async () => {
+    sessionStorage.setItem('rsdk_locale', `en_GB`);
+    mockGetPageDataAsync.mockResolvedValue(responseContentObject);
+
+    await act(async () => {
+      t.result.current.i18n.changeLanguage('en');
+      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Make an appeal if you have received a penalty for filing your tax return or paying your tax bill late.'
+        )
+      ).toBeInTheDocument();
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
+      expect(
+        screen.getByText('You can use this service to appeal penalties issued after', {
+          exact: false
+        })
+      ).toBeInTheDocument();
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
+      expect(
+        screen.getByRole('link', { name: 'use the SA370 form (opens in new tab)' })
+      ).toHaveAttribute(
+        'href',
+        'https://assets.publishing.service.gov.uk/media/657af4f6095987001295e0d7/SA370__Appeal.pdf'
+      );
+    });
+  });
+
+  it('renders dashboard common content in welsh', async () => {
+    sessionStorage.setItem('rsdk_locale', `cy_GB`);
+    mockGetPageDataAsync.mockResolvedValue(responseContentObject);
+
+    await act(async () => {
+      t.result.current.i18n.changeLanguage('cy');
+      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Gwnewch apêl os ydych wedi cael cosb am gyflwyno neu dalu eich bil treth yn hwyr.'
+        )
+      ).toBeInTheDocument();
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
+      expect(
+        screen.getByText(
+          'Gallwch ddefnyddio’r gwasanaeth hwn i apelio yn erbyn cosbau a godwyd ar ôl',
+          { exact: false }
+        )
+      ).toBeInTheDocument();
+      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
+      expect(
+        screen.getByRole('link', { name: 'defnyddiwch ffurflen SA370. (yn agor tab newydd)' })
+      ).toHaveAttribute(
+        'href',
+        'https://assets.publishing.service.gov.uk/media/657af4f6095987001295e0d7/SA370__Appeal.pdf'
+      );
+    });
+  });
+});
+
+// component
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import AskHMRC from '../../../components/AppComponents/AskHMRC';
+import Button from '../../../components/BaseComponents/Button/Button';
+import { useTranslation } from 'react-i18next';
+import useHMRCExternalLinks from '../../../components/helpers/hooks/HMRCExternalLinks';
+import PenaltyDatails from './PenaltyDatails';
+import setPageTitle from '../../../components/helpers/setPageTitleHelpers';
+import { Content, PenaltyDataProps } from './PenaltyTypes';
+import C11nEnv from '@pega/pcore-pconnect-typedefs/interpreter/c11n-env';
+import { getCurrentLanguage } from '../../../components/helpers/utils';
+import { getServiceStatus, ServiceStatusType } from '../../../components/helpers/getServiceStatus';
+
+interface LandingProps {
+  isLogout: boolean;
+  pConn: Partial<C11nEnv>;
+  penaltyDataEndpoint: string;
+  createCaseEndpoint: string;
+  handleCaseStart: () => void;
+  penaltyDataEndpointParams: {};
+  setServiceStatus: Dispatch<SetStateAction<ServiceStatusType>>;
+}
+
+const AppealsAndPenaltiesLanding: React.FC<LandingProps> = props => {
+  const {
+    isLogout,
+    pConn,
+    penaltyDataEndpoint,
+    createCaseEndpoint,
+    handleCaseStart,
+    penaltyDataEndpointParams,
+    setServiceStatus
+  } = props;
+
+  const [dashboardData, setDashboardData] = useState<PenaltyDataProps>(null);
+  const [dashboardDataLoaded, setDashboardDataLoaded] = useState<boolean>(false);
   const { t } = useTranslation();
-  const lang = getCurrentLanguage();
+  const { hmrcURL } = useHMRCExternalLinks();
 
-  let timeWithLocale = time;
-  let dateWithLocale = date;
-
-  if (lang === 'cy') {
-    timeWithLocale = time_cy;
-    dateWithLocale = date_cy;
-  }
-  function getFallbackPage() {
-    if (outage) {
-      return (
-        <>
-          <h1 className='govuk-heading-l'>{t('SERVICE_NOT_AVAILABLE')}</h1>
-          <p className='govuk-body'>
-            {t('YOU_WILL_BE_ABLE_TO_USE_SERVICE')} {timeWithLocale} {t('ON')} {dateWithLocale}
-          </p>
-          <p className='govuk-body'>
-            <a
-              target='_blank'
-              rel='noreferrer noopener'
-              href='https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment'
-              className='govuk-link'
-            >
-              {t('CONTACT_HMRC_Self_Assessment')} {t('OPENS_IN_NEW_TAB')}
-            </a>{' '}
-            {t('IF_YOU_NEED_TO_SPEAK')}
-          </p>
-        </>
-      );
+  async function createCase() {
+    const serviceStatusResponse = await getServiceStatus();
+    if (!serviceStatusResponse.isServiceHealthy) {
+      setServiceStatus(serviceStatusResponse);
     }
+    const startingFields = {
+      NotificationLanguage: getCurrentLanguage()
+    };
 
-    if (shuttered) {
-      return (
-        <>
-          <h1 className='govuk-heading-l'>{t('SHUTTER_SERVICE_UNAVAILABLE')}</h1>
-          <p className='govuk-body'>{t('SHUTTER_USE_SERVICE_LATER_MESSAGE')}</p>
-        </>
-      );
-    }
+    PCore.getMashupApi().createCase(createCaseEndpoint, PCore.getConstants().APP.APP, {
+      // @ts-ignore
+      startingFields,
+      pageName: '',
+      channelName: ''
+    });
+
+    handleCaseStart();
   }
+
+  const fetchInProgressCaseDetailData = async () => {
+    const context = pConn.getContextName();
+    const options = { invalidateCache: true };
+    try {
+      // @ts-ignore
+      const response: Content = await PCore.getDataPageUtils().getDataAsync(
+        penaltyDataEndpoint,
+        context,
+        { ...penaltyDataEndpointParams },
+        {},
+        {},
+        options
+      );
+
+      PCore.getPubSubUtils().unsubscribe(
+        'languageToggleTriggered',
+        'PenaltiesLandingPageLanguageChange'
+      );
+
+      const currentLang = getCurrentLanguage();
+
+      const data: PenaltyDataProps =
+        response?.data?.length > 0 && response.data[0].LocalisedContent?.length > 0
+          ? response.data[0].LocalisedContent.find(
+              item => item.Language.toLowerCase() === currentLang
+            )
+          : null;
+
+      setDashboardData(data);
+      PCore.getPubSubUtils().subscribe(
+        'languageToggleTriggered',
+        ({ language }) => {
+          setDashboardData(
+            response?.data[0].LocalisedContent?.find(
+              item => item.Language.toLowerCase() === language.toLowerCase()
+            )
+          );
+        },
+        'PenaltiesLandingPageLanguageChange'
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error fetching dashboard detail:', error);
+    } finally {
+      setDashboardDataLoaded(true);
+    }
+    sessionStorage.setItem('assignmentFinishedFlag', 'false');
+  };
 
   useEffect(() => {
     setPageTitle();
-  }, [lang]);
+    fetchInProgressCaseDetailData();
+  }, []);
+
+  const renderPenaltiesSection = () => (
+    <>
+      <div className='govuk-body'>
+        <p>{t('MAKE_AN_APPEAL_YOU_HAVE')}</p>
+        <p>
+          {t('YOU_CAN_USE_THIS_SERVICE')} {dashboardData.InstructionText}
+          {t('IF_YOUR_PENALTY_WAS_ISSUED_EARLIER')}
+          <a
+            className='govuk-link'
+            rel='noreferrer noopener'
+            href='https://assets.publishing.service.gov.uk/media/657af4f6095987001295e0d7/SA370__Appeal.pdf'
+            target='_blank'
+          >
+            {t('USE_THE_SA370_FORM')} {t('OPENS_IN_NEW_TAB')}
+          </a>
+          .
+        </p>
+      </div>
+      <PenaltyDatails penaltyData={dashboardData.penaltyData} />
+      <div className='govuk-body govuk-!-static-margin-bottom-6'>
+        <h2 className='govuk-heading-m'>{t('MAKE_AN_APPEAL')}</h2>
+        <p>{t('IF_YOU_DONT_THINK')}</p>
+        <p>{t('YOU_WILL_BE_ASKED_ABOUT_YOUR_REASON')}</p>
+        <p>{t('YOU_CAN_ALSO_TELL_US')}</p>
+        <h2 className='govuk-heading-m'>{t('IF_YOU_HAVE_MORE_THAN_ONE')}</h2>
+        <p>{t('THERE_ARE_2_TYPES')}</p>
+        <ul className='govuk-list govuk-list--bullet'>
+          <li>{t('LFP')}</li>
+          <li>{t('LPP')}</li>
+        </ul>
+        <p>{t('APPEAL_MULTIPLE_PENALTIES')}</p>
+        <p>{t('IF_YOU_HAVE_MORE_THAN_ONE_ACROSS_MULTIPLE_TAX_YEARS')}</p>
+      </div>
+      <Button
+        id='continueToPortal'
+        onClick={createCase}
+        data-prevent-double-click='true'
+        attributes={{ className: 'govuk-!-static-margin-bottom-1' }}
+      >
+        {t('START_AN_APPEAL')}
+      </Button>
+      <AskHMRC />
+      <p className='govuk-body'>
+        <a
+          className='govuk-link'
+          rel='noreferrer noopener'
+          target='_blank'
+          href={`${hmrcURL}contact/report-technical-problem?service=427&referrerUrl=${window.location}`}
+        >
+          {t('PAGE_NOT_WORKING_PROPERLY')} {t('OPENS_IN_NEW_TAB')}
+        </a>
+      </p>
+    </>
+  );
 
   return (
-    <MainWrapper>
-      <>
-        {getFallbackPage()}
-        <AskHMRC />
-      </>
-    </MainWrapper>
+    dashboardDataLoaded && (
+      <main
+        className={`govuk-main-wrapper ${isLogout ? 'visibility-hidden' : ''}`}
+        id='main-content'
+        role='main'
+      >
+        <div className='govuk-grid-row'>
+          <div className='govuk-grid-column-full govuk-prototype-kit-common-templates-mainstream-guide-body govuk-!-padding-right-0 govuk-!-padding-left-0'>
+            <div className='govuk-grid-column-two-thirds'>
+              <h1 className='govuk-heading-l'>{t('YOUR_SELF_ASSESSMENT_PENALTIES')}</h1>
+              {dashboardData === null ||
+              dashboardData?.penaltyData === null ||
+              dashboardData?.penaltyData?.length === 0 ? (
+                <p>{t('YOU_DO_NOT_HAVE_SA_PENALTIES')}</p>
+              ) : (
+                dashboardData && renderPenaltiesSection()
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+    )
   );
-}
+};
+
+export default AppealsAndPenaltiesLanding;
+
+// new code
+ const serviceStatusResponse = await getServiceStatus();
+    if (!serviceStatusResponse.isServiceHealthy) {
+      setServiceStatus(serviceStatusResponse);
+    }
+setServiceStatus is coming from props/ also updated the interface
