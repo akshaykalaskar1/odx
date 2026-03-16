@@ -1,582 +1,100 @@
-// landing
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import AskHMRC from '../../../components/AppComponents/AskHMRC';
-import Button from '../../../components/BaseComponents/Button/Button';
-import { useTranslation } from 'react-i18next';
-import useHMRCExternalLinks from '../../../components/helpers/hooks/HMRCExternalLinks';
-import PenaltyDatails from './PenaltyDatails';
-import setPageTitle from '../../../components/helpers/setPageTitleHelpers';
-import { Content, PenaltyDataProps } from './PenaltyTypes';
-import C11nEnv from '@pega/pcore-pconnect-typedefs/interpreter/c11n-env';
-import { getCurrentLanguage } from '../../../components/helpers/utils';
-import { getServiceStatus, ServiceStatusType } from '../../../components/helpers/getServiceStatus';
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 103:98-110:2
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(103,99)
+      TS2322: Type '{ pageName: string; timelineDetails: any; eventType: string; comingFromPage: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is not assignable to
+ type 'ViewTimelineDetailsProps & WithPageTrackingProps'.
+  Type '{ pageName: string; timelineDetails: any; eventType: string; comingFromPage: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is missing the following propert
+ies from type 'ViewTimelineDetailsProps': redirectCurrentYearPage, redirecLatestEventPage, setComingFromPage, redirectToAllIABDLandingPage, and 2 more.
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-interface LandingProps {
-  isLogout: boolean;
-  pConn: Partial<C11nEnv>;
-  penaltyDataEndpoint: string;
-  createCaseEndpoint: string;
-  handleCaseStart: () => void;
-  penaltyDataEndpointParams: {};
-  setServiceStatus: Dispatch<SetStateAction<ServiceStatusType>>;
-}
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 112:50-65
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(112,51)
+      TS2345: Argument of type '({ componentName, redirectToViewTimelineDetailsPage }: DetailExplainerProps) => JSX.Element' is not assignable to parameter of type 'ComponentType<{ pageName:
+string; componentName: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }>'.
+  Type '({ componentName, redirectToViewTimelineDetailsPage }: DetailExplainerProps) => JSX.Element' is not assignable to type 'FunctionComponent<{ pageName: string; componentName: string; go
+Back: () => void; handleLinkClick: (...args: any[]) => void; }>'.
+    Types of parameters '__0' and 'props' are incompatible.
+      Property 'redirectToViewTimelineDetailsPage' is missing in type 'PropsWithChildren<{ pageName: string; componentName: string; goBack: () => void; handleLinkClick: (...args: any[]) => vo
+id; }>' but required in type 'DetailExplainerProps'.
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-const AppealsAndPenaltiesLanding: React.FC<LandingProps> = props => {
-  const {
-    isLogout,
-    pConn,
-    penaltyDataEndpoint,
-    createCaseEndpoint,
-    handleCaseStart,
-    penaltyDataEndpointParams,
-    setServiceStatus
-  } = props;
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 121:25-128:4
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(121,26)
+      TS2322: Type '{ pageName: string; understandYourTaxDetails: any; fromPage: string; redirectCurrentYearPage: () => void; handleLinkClick: (...args: any[]) => void; redirectToDeductionExp
+lainerpage: (comingFrom: string, explainerPage: string, sourceAmount: string) => void; }' is not assignable to type 'UnderstandYourTaxCodeProps & WithPageTrackingProps'.
+  Type '{ pageName: string; understandYourTaxDetails: any; fromPage: string; redirectCurrentYearPage: () => void; handleLinkClick: (...args: any[]) => void; redirectToDeductionExplainerpage:
+(comingFrom: string, explainerPage: string, sourceAmount: string) => void; }' is missing the following properties from type 'UnderstandYourTaxCodeProps': redirectToAllIABDLandingPage, onBack
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-  const [dashboardData, setDashboardData] = useState<PenaltyDataProps>(null);
-  const [dashboardDataLoaded, setDashboardDataLoaded] = useState<boolean>(false);
-  const { t } = useTranslation();
-  const { hmrcURL } = useHMRCExternalLinks();
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 133:25-139:4
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(133,26)
+      TS2322: Type '{ pageName: string; understandYourTaxDetails: any; fromPage: string; redirectCurrentYearPage: () => void; handleLinkClick: (...args: any[]) => void; }' is not assignable t
+o type 'UnderstandYourTaxForSpecialPageProps & WithPageTrackingProps'.
+  Property 'onBack' is missing in type '{ pageName: string; understandYourTaxDetails: any; fromPage: string; redirectCurrentYearPage: () => void; handleLinkClick: (...args: any[]) => void; }'
+ but required in type 'UnderstandYourTaxForSpecialPageProps'.
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-  async function createCase() {
-    const serviceStatusResponse = await getServiceStatus();
-    if (!serviceStatusResponse.isServiceHealthy) {
-      setServiceStatus(serviceStatusResponse);
-    }
-    const startingFields = {
-      NotificationLanguage: getCurrentLanguage()
-    };
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 152:25-158:4
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(152,26)
+      TS2322: Type '{ pageName: string; comingFromPage: string; sourceAmount: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is not assignable to type 'WinterFuelPa
+ymentProps & WithPageTrackingProps'.
+  Type '{ pageName: string; comingFromPage: string; sourceAmount: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is missing the following properties from type 'Wint
+erFuelPaymentProps': redirectToAllIABDLandingPage, incomeThresholdForWinterFuelPayment
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-    PCore.getMashupApi().createCase(createCaseEndpoint, PCore.getConstants().APP.APP, {
-      // @ts-ignore
-      startingFields,
-      pageName: '',
-      channelName: ''
-    });
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 163:25-169:4
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(163,26)
+      TS2322: Type '{ pageName: string; comingFromPage: string; sourceAmount: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is not assignable to type 'UntaxedSavin
+gsInterestPageProps & WithPageTrackingProps'.
+  Type '{ pageName: string; comingFromPage: string; sourceAmount: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is missing the following properties from type 'Unta
+xedSavingsInterestPageProps': redirectToUnderstandYourTaxPage, redirectToViewTimelineDetailsPage
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-    handleCaseStart();
-  }
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 174:25-180:4
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(174,26)
+      TS2322: Type '{ pageName: string; comingFromPage: string; sourceAmount: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is not assignable to type 'TaxCodeExpla
+inerWFPProps & WithPageTrackingProps'.
+  Type '{ pageName: string; comingFromPage: string; sourceAmount: string; goBack: () => void; handleLinkClick: (...args: any[]) => void; }' is missing the following properties from type 'TaxC
+odeExplainerWFPProps': taxCodeSourceAmount, redirectToUnderstandYourTaxPage, redirectToViewTimelineDetailsPage, incomeThreshold, nextTaxStartYear
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-  const fetchInProgressCaseDetailData = async () => {
-    const context = pConn.getContextName();
-    const options = { invalidateCache: true };
-    try {
-      // @ts-ignore
-      const response: Content = await PCore.getDataPageUtils().getDataAsync(
-        penaltyDataEndpoint,
-        context,
-        { ...penaltyDataEndpointParams },
-        {},
-        {},
-        options
-      );
+ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx
+./src/samples/AppSelector/payeRoutes.tsx 183:88-188:2
+[tsl] ERROR in D:\Dev\PAYE-IABD\iabd\src\samples\AppSelector\payeRoutes.tsx(183,89)
+      TS2322: Type '{ employmentSequenceNumber: number; previousPage: string; navClickHandler: any; goBack: () => void; }' is not assignable to type 'InterruptionPageProps & WithPageTrackingP
+rops'.
+  Property 'handleNavClick' is missing in type '{ employmentSequenceNumber: number; previousPage: string; navClickHandler: any; goBack: () => void; }' but required in type 'InterruptionPagePr
+ops'.
+ @ ./src/samples/AppSelector/index.tsx 15:0-428 40:258-274 40:329-345 40:405-421 40:482-499 40:563-582 40:651-675 40:739-759 40:826-848 40:923-952 40:1013-1030 40:1097-1119 40:1191-1218 40:12
+92-1320 40:1388-1406 40:1477-1498 40:1563-1578 40:1646-1664 40:1724-1741
+ @ ./src/samples/TopLevelApp/index.tsx 5:0-41 56:82-93
+ @ ./src/index.tsx 3:0-48 8:16-27
 
-      PCore.getPubSubUtils().unsubscribe(
-        'languageToggleTriggered',
-        'PenaltiesLandingPageLanguageChange'
-      );
-
-      const currentLang = getCurrentLanguage();
-
-      const data: PenaltyDataProps =
-        response?.data?.length > 0 && response.data[0].LocalisedContent?.length > 0
-          ? response.data[0].LocalisedContent.find(
-              item => item.Language.toLowerCase() === currentLang
-            )
-          : null;
-
-      setDashboardData(data);
-      PCore.getPubSubUtils().subscribe(
-        'languageToggleTriggered',
-        ({ language }) => {
-          setDashboardData(
-            response?.data[0].LocalisedContent?.find(
-              item => item.Language.toLowerCase() === language.toLowerCase()
-            )
-          );
-        },
-        'PenaltiesLandingPageLanguageChange'
-      );
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('Error fetching dashboard detail:', error);
-    } finally {
-      setDashboardDataLoaded(true);
-    }
-    sessionStorage.setItem('assignmentFinishedFlag', 'false');
-  };
-
-  useEffect(() => {
-    setPageTitle();
-    fetchInProgressCaseDetailData();
-  }, []);
-
-  const renderPenaltiesSection = () => (
-    <>
-      <div className='govuk-body'>
-        <p>{t('MAKE_AN_APPEAL_YOU_HAVE')}</p>
-        <p>
-          {t('YOU_CAN_USE_THIS_SERVICE')} {dashboardData.InstructionText}
-          {t('IF_YOUR_PENALTY_WAS_ISSUED_EARLIER')}
-          <a
-            className='govuk-link'
-            rel='noreferrer noopener'
-            href='https://assets.publishing.service.gov.uk/media/657af4f6095987001295e0d7/SA370__Appeal.pdf'
-            target='_blank'
-          >
-            {t('USE_THE_SA370_FORM')} {t('OPENS_IN_NEW_TAB')}
-          </a>
-          .
-        </p>
-      </div>
-      <PenaltyDatails penaltyData={dashboardData.penaltyData} />
-      <div className='govuk-body govuk-!-static-margin-bottom-6'>
-        <h2 className='govuk-heading-m'>{t('MAKE_AN_APPEAL')}</h2>
-        <p>{t('IF_YOU_DONT_THINK')}</p>
-        <p>{t('YOU_WILL_BE_ASKED_ABOUT_YOUR_REASON')}</p>
-        <p>{t('YOU_CAN_ALSO_TELL_US')}</p>
-        <h2 className='govuk-heading-m'>{t('IF_YOU_HAVE_MORE_THAN_ONE')}</h2>
-        <p>{t('THERE_ARE_2_TYPES')}</p>
-        <ul className='govuk-list govuk-list--bullet'>
-          <li>{t('LFP')}</li>
-          <li>{t('LPP')}</li>
-        </ul>
-        <p>{t('APPEAL_MULTIPLE_PENALTIES')}</p>
-        <p>{t('IF_YOU_HAVE_MORE_THAN_ONE_ACROSS_MULTIPLE_TAX_YEARS')}</p>
-      </div>
-      <Button
-        id='continueToPortal'
-        onClick={createCase}
-        data-prevent-double-click='true'
-        attributes={{ className: 'govuk-!-static-margin-bottom-1' }}
-      >
-        {t('START_AN_APPEAL')}
-      </Button>
-      <AskHMRC />
-      <p className='govuk-body'>
-        <a
-          className='govuk-link'
-          rel='noreferrer noopener'
-          target='_blank'
-          href={`${hmrcURL}contact/report-technical-problem?service=427&referrerUrl=${window.location}`}
-        >
-          {t('PAGE_NOT_WORKING_PROPERLY')} {t('OPENS_IN_NEW_TAB')}
-        </a>
-      </p>
-    </>
-  );
-
-  return (
-    dashboardDataLoaded && (
-      <main
-        className={`govuk-main-wrapper ${isLogout ? 'visibility-hidden' : ''}`}
-        id='main-content'
-        role='main'
-      >
-        <div className='govuk-grid-row'>
-          <div className='govuk-grid-column-full govuk-prototype-kit-common-templates-mainstream-guide-body govuk-!-padding-right-0 govuk-!-padding-left-0'>
-            <div className='govuk-grid-column-two-thirds'>
-              <h1 className='govuk-heading-l'>{t('YOUR_SELF_ASSESSMENT_PENALTIES')}</h1>
-              {dashboardData === null ||
-              dashboardData?.penaltyData === null ||
-              dashboardData?.penaltyData?.length === 0 ? (
-                <p>{t('YOU_DO_NOT_HAVE_SA_PENALTIES')}</p>
-              ) : (
-                dashboardData && renderPenaltiesSection()
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
-    )
-  );
-};
-
-export default AppealsAndPenaltiesLanding;
-
-// New code added is 
-const serviceStatusResponse = await getServiceStatus();
-    if (!serviceStatusResponse.isServiceHealthy) {
-      setServiceStatus(serviceStatusResponse);
-    }
-
-// getService
-import { getSdkConfig } from '@pega/auth/lib/sdk-auth-manager';
-import apiConfig from './constants';
-import { getJourneyName } from './journeyRegistry';
-
-export interface ServiceStatusType {
-  loading: boolean;
-  isServiceHealthy: boolean;
-  shuttered: boolean;
-  outage: boolean;
-  time: string | undefined;
-  date: string | undefined;
-  time_cy: string | undefined;
-  date_cy: string | undefined;
-}
-
-export const defaultServiceStatus = {
-  loading: true,
-  isServiceHealthy: false,
-  shuttered: false,
-  outage: false,
-  time: undefined,
-  date: undefined,
-  time_cy: undefined,
-  date_cy: undefined
-};
-
-export const getServiceStatus = async (): Promise<ServiceStatusType> => {
-  type ServiceStatusResponseType = {
-    Shuttered: boolean;
-    Outage: boolean;
-    Time: string | undefined;
-    Date: string | undefined;
-    Time_CY: string | undefined;
-    Date_CY: string | undefined;
-  };
-  interface ResponseType {
-    data: ServiceStatusResponseType;
-  }
-
-  try {
-    const sdkConfig = await getSdkConfig();
-    const urlConfig = new URL(
-      `${sdkConfig.serverConfig.infinityRestServerUrl}/app/${sdkConfig.serverConfig.appAlias}/api/application/v2/data_views/D_ShutterLookup`
-    ).href;
-
-    const featureID = apiConfig[getJourneyName()].shuttering.featureID;
-    const featureType = 'Service';
-
-    const parameters = new URLSearchParams(
-      `{FeatureID: ${featureID}, FeatureType: ${featureType}}`
-    );
-
-    const url = `${urlConfig}?dataViewParameters=${parameters}`;
-    const { invokeCustomRestApi } = PCore.getRestClient();
-    return invokeCustomRestApi(
-      url,
-      {
-        method: 'GET',
-        body: '',
-        headers: '',
-        withoutDefaultHeaders: false
-      },
-      ''
-    )
-      .then((response: ResponseType) => {
-        const { Shuttered, Outage, Time, Date, Time_CY, Date_CY } = response.data;
-        return {
-          loading: false,
-          isServiceHealthy: !(Shuttered || Outage),
-          shuttered: Shuttered || false,
-          outage: Outage || false,
-          time: Time,
-          date: Date,
-          time_cy: Time_CY,
-          date_cy: Date_CY
-        };
-      })
-      .catch((error: Error) => {
-        // eslint-disable-next-line no-console
-        console.log(error);
-        return { loading: false, ...defaultServiceStatus };
-      });
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
-    return { loading: false, ...defaultServiceStatus };
-  }
-};
-
-// test
-import { Dispatch, SetStateAction } from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import { I18nextProvider, useTranslation } from 'react-i18next';
-import { renderHook } from '@testing-library/react-hooks';
-import { act } from 'react-dom/test-utils';
-import { mockGetSdkConfigWithBasepath } from '../../../../tests/mocks/getSdkConfigMock';
-import useHMRCExternalLinks from '../../../components/helpers/hooks/HMRCExternalLinks';
-import AppealsAndPenaltiesLanding from '.';
-import C11nEnv from '@pega/pcore-pconnect-typedefs/interpreter/c11n-env';
-import { ServiceStatusType } from '../../../components/helpers/getServiceStatus'; // Adjust the path if needed
-
-jest.mock('@pega/auth/lib/sdk-auth-manager', () => ({
-  getSdkConfig: jest.fn()
-}));
-
-const mockCreateCase = jest.fn();
-const mockHandleCaseStart = jest.fn();
-const mockSetServiceStatus = jest.fn() as Dispatch<SetStateAction<ServiceStatusType>>;
-
-interface LandingPropsType {
-  isLogout: boolean;
-  pConn: Partial<C11nEnv>;
-  penaltyDataEndpoint: string;
-  createCaseEndpoint: string;
-  handleCaseStart: () => void;
-  penaltyDataEndpointParams: {};
-  setServiceStatus: React.Dispatch<React.SetStateAction<ServiceStatusType>>;
-}
-
-const defaultProps: LandingPropsType = {
-  isLogout: false,
-  pConn: {
-    getContextName: () => 'mockContext'
-  },
-  penaltyDataEndpoint: '/mock/penalty-data-endpoint',
-  createCaseEndpoint: '/mock/create-case-endpoint',
-  handleCaseStart: mockHandleCaseStart,
-  penaltyDataEndpointParams: { LocalisedContent: true },
-  setServiceStatus: mockSetServiceStatus
-};
-
-const responseContentObject = {
-  fetchDateTime: '2025-03-18T17:26:45.613Z',
-  pxObjClass: 'Pega-API-DataExploration-Data',
-  resultCount: 1,
-  data: [
-    {
-      pxObjClass: 'HMRC-SA-Data-Appeal',
-      LocalisedContent: [
-        {
-          pxObjClass: 'HMRC-SA-Data-LocalisedContent',
-          Language: 'EN',
-          penaltyData: [
-            {
-              duration: '6 April 2024 to 5 April 2025',
-              pxObjClass: 'HMRC-SA-Data-PenaltyData',
-              penalties: [
-                {
-                  pxObjClass: 'HMRC-SA-Data-PenaltyData-Results',
-                  totalAmount: 1600.0,
-                  penaltyType: 'Late filing penalties',
-                  results: [
-                    {
-                      pxObjClass: 'HMRC-SA-Data-Penalty',
-                      AdditionalInfo:
-                        'Issued when you missed the deadline for submitting your tax return.',
-                      PenaltyNumber: 1,
-                      Amount: 100.0,
-                      RelevantDueDate: '2024-04-20'
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          pxObjClass: 'HMRC-SA-Data-LocalisedContent',
-          Language: 'CY',
-          penaltyData: [
-            {
-              duration: '6 Ebrill 2024 i 5 Ebrill 2025',
-              pxObjClass: 'HMRC-SA-Data-PenaltyData',
-              penalties: [
-                {
-                  pxObjClass: 'HMRC-SA-Data-PenaltyData-Results',
-                  totalAmount: 1600.0,
-                  penaltyType: 'Cosbau am gyflwyno’n hwyr',
-                  results: [
-                    {
-                      pxObjClass: 'HMRC-SA-Data-Penalty',
-                      AdditionalInfo:
-                        'Codwyd pan wnaethoch fethu’r dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth.',
-                      PenaltyNumber: 1,
-                      Amount: 100.0,
-                      RelevantDueDate: '2024-04-20'
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-};
-
-describe('AppealsAndPenaltiesLanding Component.', () => {
-  let t;
-  afterEach(cleanup);
-  let mockGetPageDataAsync;
-
-  beforeEach(async () => {
-    mockGetSdkConfigWithBasepath();
-
-    // Mocking PCore
-    (window as any).PCore = {
-      getMashupApi: () => ({
-        createCase: mockCreateCase
-      })
-    };
-
-    t = renderHook(() => useTranslation());
-    const { result } = renderHook(() => useHMRCExternalLinks());
-
-    await act(async () => {
-      t.result.current.i18n.changeLanguage('en');
-      result.current.referrerURL = 'https://www.staging.tax.service.gov.uk/';
-      result.current.hmrcURL = 'https://www.staging.tax.service.gov.uk/';
-      result.current.hmrcUrlMigrated = 'https://test-www.tax.service.gov.uk/';
-    });
-
-    jest.clearAllMocks();
-
-    sessionStorage.setItem('rsdk_locale', `en_GB`);
-    mockCreateCase.mockResolvedValue({ data: [] });
-    mockGetPageDataAsync = jest.fn();
-
-    const mockEventEmitter = {
-      subscribe: jest.fn(),
-      unsubscribe: jest.fn()
-    };
-
-    (window as any).PCore = {
-      getDataPageUtils: jest.fn(() => ({
-        getDataAsync: mockGetPageDataAsync
-      })),
-      getPubSubUtils: jest.fn(() => mockEventEmitter)
-    };
-  });
-
-  it('renders correctly with default props', async () => {
-    await act(async () => {
-      render(
-        <I18nextProvider i18n={t.result.current.i18n}>
-          render(
-          <AppealsAndPenaltiesLanding {...defaultProps} />
-          );
-        </I18nextProvider>
-      );
-    });
-
-    expect(screen.getByRole('main')).toBeInTheDocument();
-    expect(screen.getByText('Your Self Assessment penalties')).toBeInTheDocument();
-  });
-
-  it('renders "no penalties" message in english when no data is fetched', async () => {
-    mockCreateCase.mockResolvedValue({ data: [] });
-    mockGetPageDataAsync.mockResolvedValue(null);
-
-    await act(async () => {
-      t.result.current.i18n.changeLanguage('en');
-      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('You do not have any Self Assessment penalties')).toBeInTheDocument();
-    });
-  });
-
-  it('renders "no penalties" message in welsh when no data is fetched', async () => {
-    mockCreateCase.mockResolvedValue({ data: [] });
-    mockGetPageDataAsync.mockResolvedValue(null);
-
-    await act(async () => {
-      t.result.current.i18n.changeLanguage('cy');
-      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('Nid oes gennych unrhyw gosbau Hunanasesiad')).toBeInTheDocument();
-    });
-  });
-
-  it('renders dashboard common content in english', async () => {
-    sessionStorage.setItem('rsdk_locale', `en_GB`);
-    mockGetPageDataAsync.mockResolvedValue(responseContentObject);
-
-    await act(async () => {
-      t.result.current.i18n.changeLanguage('en');
-      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          'Make an appeal if you have received a penalty for filing your tax return or paying your tax bill late.'
-        )
-      ).toBeInTheDocument();
-      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
-      expect(
-        screen.getByText('You can use this service to appeal penalties issued after', {
-          exact: false
-        })
-      ).toBeInTheDocument();
-      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
-      expect(
-        screen.getByRole('link', { name: 'use the SA370 form (opens in new tab)' })
-      ).toHaveAttribute(
-        'href',
-        'https://assets.publishing.service.gov.uk/media/657af4f6095987001295e0d7/SA370__Appeal.pdf'
-      );
-    });
-  });
-
-  it('renders dashboard common content in welsh', async () => {
-    sessionStorage.setItem('rsdk_locale', `cy_GB`);
-    mockGetPageDataAsync.mockResolvedValue(responseContentObject);
-
-    await act(async () => {
-      t.result.current.i18n.changeLanguage('cy');
-      render(<AppealsAndPenaltiesLanding {...defaultProps} />);
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          'Gwnewch apêl os ydych wedi cael cosb am gyflwyno neu dalu eich bil treth yn hwyr.'
-        )
-      ).toBeInTheDocument();
-      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
-      expect(
-        screen.getByText(
-          'Gallwch ddefnyddio’r gwasanaeth hwn i apelio yn erbyn cosbau a godwyd ar ôl',
-          { exact: false }
-        )
-      ).toBeInTheDocument();
-      // eslint-disable-next-line testing-library/no-wait-for-multiple-assertions
-      expect(
-        screen.getByRole('link', { name: 'defnyddiwch ffurflen SA370. (yn agor tab newydd)' })
-      ).toHaveAttribute(
-        'href',
-        'https://assets.publishing.service.gov.uk/media/657af4f6095987001295e0d7/SA370__Appeal.pdf'
-      );
-    });
-  });
-
-  it('calls setServiceStatus with shuttered', async () => {
-    mockGetPageDataAsync.mockResolvedValue(responseContentObject);
-
-    await act(async () => {
-      render(
-        <I18nextProvider i18n={t.result.current.i18n}>
-          <AppealsAndPenaltiesLanding {...defaultProps} />
-        </I18nextProvider>
-      );
-    });
-
-    await waitFor(() => {
-      expect(mockSetServiceStatus).toHaveBeenCalledWith(
-        expect.objectContaining({
-          shuttered: expect.any(Boolean)
-        })
-      );
-    });
-  });
-});
-
-
-// failing error
-  × calls setServiceStatus with shuttered (1028 ms)
-
-  ● AppealsAndPenaltiesLanding Component. › calls setServiceStatus with shuttered
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: ObjectContaining {"shuttered": Any<Boolean>}
-
-    Number of calls: 0
+8 errors have detailed information that is not shown.
